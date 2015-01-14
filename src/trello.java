@@ -27,10 +27,11 @@ class UIServer
         }
         catch (Exception e)
         {
+            System.out.println(e);
             return;
         }
 
-        if (args.length > 0 &&args[0].equals("-?"))
+        if (args.length > 0 && args[0].equals("-?"))
         {
 
             String NEW_LINE = System.getProperty("line.separator");
@@ -42,7 +43,7 @@ class UIServer
             return;
         }
 
-        if (args.length > 0 &&args[0].equals("-b"))
+        if (args.length > 0 && args[0].equals("-b"))
         {
             try
             {
@@ -184,7 +185,8 @@ class TrelloClient extends SwingWorker<Integer, Integer>
 
         isInitialized = true;
 
-        trello4jClient = new TrelloImpl(API_KEY, configUserToken);
+        trello4jClient = new TrelloImpl(API_KEY, configUserToken.substring(1, configUserToken.length()-1));
+
         System.out.println("[apicall] init");
     }
 
