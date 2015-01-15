@@ -65,27 +65,16 @@ class UIServer
 
     private static void createAndShowGUI()
     {
-        // Start TrelloClient WorkerThread
-        try
-        {
-            tClient.doInBackground();
-        }
-        catch (Exception e)
-        {
-            System.out.println(e);
-            System.exit(1);
-        }
-
         // Create and set up the window.
         frame = new JFrame("HelloWorldSwing");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         frame.setLocation(100,0);
-        frame.setResizable(false);
+        frame.setResizable(true);
 
         // Add label and buttons
-        JLabel label = new JLabel("Hello World");
-        frame.getContentPane().add(label);
+        //JLabel label = new JLabel("Hello World");
+        //frame.getContentPane().add(label);
 
         JButton b1 = new JButton("uno");
         frame.getContentPane().add(b1);
@@ -100,12 +89,22 @@ class UIServer
         frame.pack();
         frame.setVisible(true);
 
+        // Start TrelloClient WorkerThread
+        try
+        {
+            tClient.execute();
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            System.exit(1);
+        }
     }
 
-    public static void update()
+    public static void update(int n, Card c)
     {
-        JLabel c = (JLabel)frame.getContentPane().getComponent(0);
-        //c.setText("f"+n);
+        JButton b = (JButton)frame.getContentPane().getComponent(n);
+        b.setText(c.getName());
     }
 }
 
@@ -113,7 +112,7 @@ class TrelloClient extends SwingWorker<Integer, Integer>
 {
     private static final String API_KEY = "c67c1cdec3b70b84a052b4d085c15eb1";
     private static final int MAX_API_CALLS = 1;
-    private static final int UPDATE_INTERVAL = 1000 * 10;
+    private static final int UPDATE_INTERVAL = 1000 * 60 * 60; // 1 Hour
 
     private JsonArray configListArray;
     private String configUserToken;
@@ -142,10 +141,11 @@ class TrelloClient extends SwingWorker<Integer, Integer>
         {
             List<Card> bs2 = null;
             System.out.println("[apicall] getCardsByList");
+            String listId = configListArray.get(a).toString().replace('"', ' ').trim();
 
             try
             {
-                bs2 = trello4jClient.getCardsByList(configListArray.get(a).toString());
+                bs2 = trello4jClient.getCardsByList(listId);
             }
             catch(Exception e)
             {
@@ -155,7 +155,13 @@ class TrelloClient extends SwingWorker<Integer, Integer>
 
             if (null == bs2)
             {
-                System.out.println("board `" + configListArray.get(a).toString() + "` does not exist." );
+                System.out.println("board `" + listId + "` does not exist or is invalid." );
+                throw new Exception();
+            }
+
+            if (0 == bs2.size())
+            {
+                System.out.println("board `" + listId + "` has no cards!" );
                 throw new Exception();
             }
 
@@ -163,10 +169,11 @@ class TrelloClient extends SwingWorker<Integer, Integer>
             {
                 System.out.println("name:" + b.getName());
             }
+
+            // Update the UI
+            UIServer.update(a, bs2.get(0));
         }
 
-        // Update the UI
-        UIServer.update();
     }
 
     public void initialize() throws Exception
