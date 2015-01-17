@@ -1,0 +1,38 @@
+apply plugin: "java"
+
+version = '0.0.1-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven{ url 'https://raw.github.com/joelso/joelso-mvn-repo/master/snapshots/' }
+}
+
+dependencies {
+    compile ('org.trello4j:trello4j:1.0-SNAPSHOT', 'com.google.code.gson:gson:2.1')
+}
+
+sourceSets {
+    main.resources { exclude 'config.json' }
+}
+
+jar {
+    manifest.attributes 'Main-Class' : 'UIServer',
+        'Implementation-Version': version,
+        'Implementation-title': 'Cliente Trello',
+        'Class-Path': configurations.compile.collect { 'lib/' + it.getName() }.join(' ')
+}
+
+task copyLibs(type: Copy){
+    from configurations.compile
+    into 'build/libs/lib'
+}
+
+task copyResources(type: Copy){
+    from 'src/main/resources'
+    into 'build/libs'
+}
+
+jar.doLast {
+    tasks.copyLibs.execute()
+    tasks.copyResources.execute()
+}
