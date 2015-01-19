@@ -1,8 +1,11 @@
-
+import java.awt.Color;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.*;
 import org.trello4j.model.*;
 import org.trello4j.*;
-
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
@@ -66,19 +69,45 @@ class UIServer
     private static void createAndShowGUI()
     {
         // Create and set up the window.
-        frame = new JFrame("HelloWorldSwing");
+        frame = new JFrame("Trello Client");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        frame.setLocation(100,0);
+        frame.setLocation(1000,0);
         frame.setResizable(true);
+        frame.setUndecorated(true);
+        frame.setAlwaysOnTop( true );
+        frame.setOpacity(0.5f); //?
 
-        // Add label and buttons
-        //JLabel label = new JLabel("Hello World");
-        //frame.getContentPane().add(label);
+        JButton button = new JButton("this is a long text");
+        button.setForeground(Color.blue);
+        //button.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        //button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setFocusPainted(false);
 
-        JButton b1 = new JButton("uno");
-        frame.getContentPane().add(b1);
- 
+        button.addMouseListener(new MouseAdapter()
+            {
+                public void mousePressed(MouseEvent ev) {
+                    if (ev.isPopupTrigger()) {
+                    System.out.println("right pressed clicked!");
+                    //menu.show(ev.getComponent(), ev.getX(), ev.getY());
+                    }
+                }
+
+                public void mouseReleased(MouseEvent ev) {
+                    if (ev.isPopupTrigger()) {
+                    System.out.println("right released clicked!");
+                    //menu.show(ev.getComponent(), ev.getX(), ev.getY());
+                    }
+                }
+
+                public void mouseClicked(MouseEvent ev) {
+                    System.out.println("left clicked!");
+                }
+            });
+
+        frame.getContentPane().add(button);
+
         JButton b2 = new JButton("dos");
         frame.getContentPane().add(b2);
 
@@ -92,7 +121,7 @@ class UIServer
         // Start TrelloClient WorkerThread
         try
         {
-            tClient.execute();
+            //tClient.execute();
         }
         catch (Exception e)
         {
@@ -105,6 +134,8 @@ class UIServer
     {
         JButton b = (JButton)frame.getContentPane().getComponent(n);
         b.setText(c.getName());
+        frame.pack();
+        frame.setVisible(true);
     }
 }
 
