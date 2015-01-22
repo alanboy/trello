@@ -16,7 +16,7 @@ sourceSets {
 }
 
 jar {
-    manifest.attributes 'Main-Class' : 'UIServer',
+    manifest.attributes 'Main-Class' : 'TrelloCmd',
         'Implementation-Version': version,
         'Implementation-title': 'Cliente Trello',
         'Class-Path': configurations.compile.collect { 'lib/' + it.getName() }.join(' ')

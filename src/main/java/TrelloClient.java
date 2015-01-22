@@ -24,6 +24,50 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
     private String configUserToken;
     private Trello trello4jClient;
     private boolean isInitialized;
+    private static TrelloClient trelloInstance;
+
+    private TrelloClient()
+    {
+    }
+
+    public List<org.trello4j.model.List> getListsFromBoard(Board board) throws Exception
+    {
+        if (!isInitialized)
+        {
+            throw new Exception("Client has not been initialized.");
+        }
+
+        List<org.trello4j.model.List> ls = trello4jClient.getListByBoard(board.getId());
+
+        return ls;
+    }
+
+    public List<Board> getMyBoards() throws Exception
+    {
+        if (!isInitialized)
+        {
+            throw new Exception("Client has not been initialized.");
+        }
+
+        List<Board> bs = trello4jClient.getBoardsByMember("my");
+
+        if (0 == bs.size())
+        {
+            System.out.println("you dont have access to any boards?");
+        }
+
+        return bs;
+    }
+
+    public static TrelloClient GetInstance()
+    {
+        if (null == trelloInstance)
+        {
+            trelloInstance = new TrelloClient();
+        }
+
+        return trelloInstance;
+    }
 
     protected Integer doInBackground() throws Exception
     {
@@ -38,11 +82,12 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
 
             Thread.sleep(UPDATE_INTERVAL);
         }
-
     }
 
     private void doWork() throws Exception
     {
+        UIServer.setNumberOfLists(configListArray.size());
+
         for (int a = 0; a < configListArray.size(); a++)
         {
             List<Card> bs2 = null;
@@ -70,15 +115,15 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
                 throw new Exception();
             }
 
-            for (Card b : bs2)
+            for (Card c : bs2)
             {
-                System.out.println("name:" + b.getName());
+                System.out.println("name:" + c.getName());
             }
 
-            // Update the UI
             UIServer.update(a, bs2.get(0));
         }
 
+        UIServer.doneUpdating();
     }
 
     public void initialize() throws Exception
@@ -92,14 +137,12 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
 
         if (!canContinue)
         {
-            throw new Exception("Unable to stat trello client.");
+            throw new Exception("Unable to stat trello client, something related to the configuration");
         }
 
+        String userTokenFromConfig = configUserToken.substring(1, configUserToken.length()-1);
 
-        String user = configUserToken.substring(1, configUserToken.length()-1);
-        System.out.println("using user " + user);
-
-        trello4jClient = new TrelloImpl(API_KEY, user);
+        trello4jClient = new TrelloImpl(API_KEY, userTokenFromConfig);
 
         if (null == trello4jClient)
         {
@@ -116,43 +159,7 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
 
         isInitialized = true;
 
-        System.out.println(m.getUsername());
-
-        System.out.println("trello client started");
-
-        //verify configUserToken is valid
-    }
-
-    public void showMyProfile() throws Exception
-    {
-        if (!isInitialized)
-        {
-            throw new Exception("Client has not been initialized.");
-        }
-
-        Member m = trello4jClient.getMember("my");
-    }
-
-    public void showMyBoards() throws Exception
-    {
-        if (!isInitialized)
-        {
-            throw new Exception("Client has not been initialized.");
-        }
-
-        List<Board> bs = trello4jClient.getBoardsByMember("my");
-
-        if (0 == bs.size())
-        {
-            System.out.println("you dont have access to any boards?");
-        }
-
-        for (Board b : bs)
-        {
-            System.out.println("id:" +   b.getId());
-            System.out.println("desc:" + b.getDesc());
-            System.out.println("name:" + b.getName());
-        }
+        System.out.println("trello client started for username " + m.getUsername());
     }
 
     /**
@@ -184,6 +191,10 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
         return true;
     }
 
+    /**
+      * @TODO make this resilient to non-existing config file (create a new one)
+      *
+      **/
     private boolean readConfig()
     {
         try
