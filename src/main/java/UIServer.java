@@ -74,21 +74,32 @@ public class UIServer
         button.setContentAreaFilled(false);
         button.setFocusPainted(false);
 
-        //button.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-        //button.setBorderPainted(false);
+        JPopupMenu buttonPopUp = new JPopupMenu();
+        JMenuItem moveToMenu = new JMenuItem("Done");
+        JMenuItem showNextCardMenu = new JMenuItem("Next card");
+        JMenuItem configurationMenu = new JMenuItem("Configuration ");
+        JMenuItem exitMenu = new JMenuItem("Exit");
 
-        button.addMouseListener(new MouseAdapter(){
-                public void mouseReleased(MouseEvent ev) {
-                    if (ev.isPopupTrigger())
-                    {
-                        System.out.println("right released clicked!");
-                    }
-                    else
-                    {
-                        System.out.println("left? released clicked!");
-                    }
-                }
-            });
+        moveToMenu.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e)
+            {
+                System.out.println("Marking as done");
+            }
+        });
+
+        showNextCardMenu.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e)
+            {
+                System.out.println("Showing next card");
+            }
+        });
+
+        buttonPopUp.add(moveToMenu);
+        buttonPopUp.add(showNextCardMenu);
+        buttonPopUp.addSeparator();
+        buttonPopUp.add(configurationMenu);
+        buttonPopUp.add(exitMenu);
+        button.setComponentPopupMenu(buttonPopUp);
 
         frame.getContentPane().add(button);
     }
