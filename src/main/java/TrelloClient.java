@@ -86,13 +86,13 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
 
     private void doWork() throws Exception
     {
-        UIServer.setNumberOfLists(configListArray.size());
+        UIServer.clearLists();
 
-        for (int a = 0; a < configListArray.size(); a++)
+        for (int nCurrentList = 0; nCurrentList < configListArray.size(); nCurrentList++)
         {
             List<Card> bs2 = null;
             System.out.println("[apicall] getCardsByList");
-            String listId = configListArray.get(a).toString().replace('"', ' ').trim();
+            String listId = configListArray.get(nCurrentList).toString().replace('"', ' ').trim();
 
             try
             {
@@ -120,10 +120,30 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
                 System.out.println("name:" + c.getName());
             }
 
-            UIServer.update(a, bs2.get(0));
+            UIServer.updateNewList(listId, bs2);
         }
 
         UIServer.doneUpdating();
+    }
+
+    public void moveCardToEnd()
+    {
+    
+    }
+
+    public void newCardToList(String sListId, String newCardTitle)
+    {
+        if (!isInitialized)
+        {
+            //throw new Exception("Client has not been initialized.");
+            return;
+        }
+        
+
+        //System.out.println(
+        //        "New card in list " + sListId
+        //        + " " + ((null == c) ? "Failed." : "Succeded"));
+
     }
 
     public void initialize() throws Exception
@@ -153,7 +173,7 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
 
         if (null == m)
         {
-            System.out.println("get member failed, is token valid?");
+            System.out.println("initialize failed while getting current user.");
             throw new Exception("Unable to stat trello client.");
         }
 

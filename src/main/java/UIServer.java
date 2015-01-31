@@ -17,8 +17,7 @@ import org.trello4j.model.*;
 public class UIServer
 {
     private static JFrame frame;
-    private static int nListsToDisplay;
-
+    private static int nNumberOfLists = 0;
 
     public static void createAndShowGUI()
     {
@@ -41,9 +40,10 @@ public class UIServer
         frame.pack();
         frame.setVisible(true);
 
-        // Start TrelloClient WorkerThread
         try
         {
+            // Start TrelloClient WorkerThread,
+            // this call is non-blocking
             TrelloClient.GetInstance().execute();
         }
         catch (Exception e)
@@ -59,31 +59,32 @@ public class UIServer
         frame.setVisible(true);
     }
 
-    public static void update(int n, Card c)
+    public static void updateNewList(final String sListId, List<Card> listOfCards)
     {
-        JButton b = (JButton)frame.getContentPane().getComponent(n);
-        b.setText(c.getName());
-        frame.pack();
-        frame.setVisible(true);
-    }
+        if (0 == listOfCards.size())
+        {
+           return;
+        }
 
-    private static void createNewList()
-    {
+        nNumberOfLists++;
+
         JButton button = new JButton("");
+        button.setText(listOfCards.get(0).getName());
         button.setForeground(Color.blue);
         button.setContentAreaFilled(false);
         button.setFocusPainted(false);
 
         JPopupMenu buttonPopUp = new JPopupMenu();
-        JMenuItem moveToMenu = new JMenuItem("Done");
+        JMenuItem newCardMenu = new JMenuItem("New card");
         JMenuItem showNextCardMenu = new JMenuItem("Next card");
         JMenuItem configurationMenu = new JMenuItem("Configuration ");
         JMenuItem exitMenu = new JMenuItem("Exit");
 
-        moveToMenu.addActionListener(new ActionListener(){
+        newCardMenu.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e)
             {
-                System.out.println("Marking as done");
+                String newCardTitle = JOptionPane.showInputDialog("New card");
+                TrelloClient.GetInstance().newCardToList(sListId, newCardTitle);
             }
         });
 
@@ -91,10 +92,12 @@ public class UIServer
             public void actionPerformed(ActionEvent e)
             {
                 System.out.println("Showing next card");
+
+                TrelloClient.GetInstance().moveCardToEnd();
             }
         });
 
-        buttonPopUp.add(moveToMenu);
+        buttonPopUp.add(newCardMenu);
         buttonPopUp.add(showNextCardMenu);
         buttonPopUp.addSeparator();
         buttonPopUp.add(configurationMenu);
@@ -104,16 +107,10 @@ public class UIServer
         frame.getContentPane().add(button);
     }
 
-    public static void setNumberOfLists(int n)
+    public static void clearLists()
     {
         frame.getContentPane().removeAll();
-
-        while (n-- > 0)
-        {
-            createNewList();
-        }
-
-        nListsToDisplay = n;
+        nNumberOfLists = 0;
     }
 }
 
