@@ -126,20 +126,24 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
         UIServer.doneUpdating();
     }
 
-    public void moveCardToEnd()
-    {
-    
-    }
-
-    public void newCardToList(String sListId, String newCardTitle)
+    public void archiveCard(Card c) throws Exception
     {
         if (!isInitialized)
         {
-            //throw new Exception("Client has not been initialized.");
-            return;
+            throw new Exception("Client has not been initialized.");
         }
-        
 
+
+    }
+
+    public void newCardToList(String sListId, String newCardTitle) throws Exception
+    {
+        if (!isInitialized)
+        {
+            throw new Exception("Client has not been initialized.");
+        }
+
+        trello4jClient.createCard(sListId, newCardTitle, null);
         //System.out.println(
         //        "New card in list " + sListId
         //        + " " + ((null == c) ? "Failed." : "Succeded"));
@@ -219,7 +223,7 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
     {
         try
         {
-            BufferedReader br = new BufferedReader(new FileReader("config.json"));
+                BufferedReader br = new BufferedReader(new FileReader(System.getProperty("user.home") + "\\trello.json"));
             String json = "";
             String s;
 

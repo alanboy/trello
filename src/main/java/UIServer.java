@@ -81,19 +81,23 @@ public class UIServer
         JMenuItem exitMenu = new JMenuItem("Exit");
 
         newCardMenu.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e)
+            public void actionPerformed(ActionEvent ev)
             {
                 String newCardTitle = JOptionPane.showInputDialog("New card");
-                TrelloClient.GetInstance().newCardToList(sListId, newCardTitle);
+                try {
+                    TrelloClient.GetInstance().newCardToList(sListId, newCardTitle);
+                }catch(Exception ex)
+                {
+                    System.out.println(ex);
+                }
             }
         });
 
         showNextCardMenu.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e)
             {
-                System.out.println("Showing next card");
-
-                TrelloClient.GetInstance().moveCardToEnd();
+                System.out.println("archiving card");
+                //TrelloClient.GetInstance().archiveCard(listOfCards.get(0));
             }
         });
 
