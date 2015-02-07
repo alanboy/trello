@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.swing.*;
 import org.trello4j.*;
 import org.trello4j.model.*;
+import org.trello4j.model.Action;
 
 public class TrelloClient extends SwingWorker<Integer, Integer>
 {
@@ -126,13 +127,14 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
         UIServer.doneUpdating();
     }
 
-    public void archiveCard(Card c) throws Exception
+    public void archiveCard(Card c) // throws Exception
     {
         if (!isInitialized)
         {
-            throw new Exception("Client has not been initialized.");
+           // throw new Exception("Client has not been initialized.");
         }
 
+        trello4jClient.closeCard(c.getId());
 
     }
 
@@ -143,10 +145,10 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
             throw new Exception("Client has not been initialized.");
         }
 
-        trello4jClient.createCard(sListId, newCardTitle, null);
-        //System.out.println(
-        //        "New card in list " + sListId
-        //        + " " + ((null == c) ? "Failed." : "Succeded"));
+        Card c = trello4jClient.createCard(sListId, newCardTitle, null);
+        System.out.println(
+                "New card in list " + sListId
+               + " " + ((null == c) ? "Failed." : "Succeded"));
 
     }
 
@@ -233,7 +235,7 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
         }
         catch(IOException ioe)
         {
-            System.out.println("IO error. Does config.json exist?");
+            System.out.println("does trello.json exist? searched : " + System.getProperty("user.home"));
             return false;
         }
 

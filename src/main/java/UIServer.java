@@ -59,7 +59,7 @@ public class UIServer
         frame.setVisible(true);
     }
 
-    public static void updateNewList(final String sListId, List<Card> listOfCards)
+    public static void updateNewList(final String sListId, final List<Card> listOfCards)
     {
         if (0 == listOfCards.size())
         {
@@ -76,7 +76,7 @@ public class UIServer
 
         JPopupMenu buttonPopUp = new JPopupMenu();
         JMenuItem newCardMenu = new JMenuItem("New card");
-        JMenuItem showNextCardMenu = new JMenuItem("Next card");
+        JMenuItem showNextCardMenu = new JMenuItem("Archive card");
         JMenuItem configurationMenu = new JMenuItem("Configuration ");
         JMenuItem exitMenu = new JMenuItem("Exit");
 
@@ -97,7 +97,7 @@ public class UIServer
             public void actionPerformed(ActionEvent e)
             {
                 System.out.println("archiving card");
-                //TrelloClient.GetInstance().archiveCard(listOfCards.get(0));
+                TrelloClient.GetInstance().archiveCard(listOfCards.get(0));
             }
         });
 

@@ -5,7 +5,7 @@ How to use
 ==================
 
 Go to:
-`https://trello.com/1/authorize?key=c67c1cdec3b70b84a052b4d085c15eb1&expiration=30days&name=trelloc&response_type=token`
+`https://trello.com/1/authorize?key=c67c1cdec3b70b84a052b4d085c15eb1&expiration=30days&name=trelloc&response_type=token&scope=read,write,account`
 click `Allow` to get a token. Use that token in config.json next to this app.
 
 
