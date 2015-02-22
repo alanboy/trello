@@ -87,8 +87,6 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
 
     private void doWork() throws Exception
     {
-        UIServer.clearLists();
-
         for (int nCurrentList = 0; nCurrentList < configListArray.size(); nCurrentList++)
         {
             List<Card> bs2 = null;
@@ -121,10 +119,8 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
                 System.out.println("name:" + c.getName());
             }
 
-            UIServer.updateNewList(listId, bs2);
+            UIServer.addList(listId, bs2);
         }
-
-        UIServer.doneUpdating();
     }
 
     public void archiveCard(Card c) // throws Exception

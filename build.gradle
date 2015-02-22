@@ -5,7 +5,9 @@ version = '0.0.1-SNAPSHOT'
 
 repositories {
     mavenCentral()
-    maven{ url 'https://raw.github.com/joelso/joelso-mvn-repo/master/snapshots/' }
+    flatDir{
+        dirs 'trello4j\\target'
+    }
 }
 
 dependencies {
