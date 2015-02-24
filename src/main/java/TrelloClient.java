@@ -26,6 +26,7 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
     private Trello trello4jClient;
     private boolean isInitialized;
     private static TrelloClient trelloInstance;
+    private String explicitConfigLocation;
 
     private TrelloClient()
     {
@@ -156,6 +157,12 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
 
     }
 
+    public void initialize(String configPath) throws Exception
+    {
+        explicitConfigLocation = configPath;
+        initialize();
+    }
+
     public void initialize() throws Exception
     {
         if (isInitialized)
@@ -229,7 +236,15 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
     {
         try
         {
-                BufferedReader br = new BufferedReader(new FileReader(System.getProperty("user.home") + "\\trello.json"));
+            BufferedReader br;
+            if (explicitConfigLocation != null)
+            {
+                 br = new BufferedReader(new FileReader(explicitConfigLocation));
+            }
+            else
+            {
+                 br = new BufferedReader(new FileReader(System.getProperty("user.home") + "\\trello.json"));
+            }
             String json = "";
             String s;
 
@@ -239,7 +254,8 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
         }
         catch(IOException ioe)
         {
-            System.out.println("does trello.json exist? searched : " + System.getProperty("user.home"));
+            System.out.println("does trello.json exist? try putting it here : "
+                    + System.getProperty("user.home") + " or choose your own location and pass it in a -c switch");
             return false;
         }
 

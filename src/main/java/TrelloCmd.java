@@ -29,7 +29,14 @@ public class TrelloCmd
 
         try
         {
-            tClient.initialize();
+            if (args.length > 0 && args[0].equals("-c"))
+            {
+                tClient.initialize(args[1]);
+            }
+            else
+            {
+                tClient.initialize();
+            }
         }
         catch (Exception e)
         {
