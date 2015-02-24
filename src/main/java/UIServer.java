@@ -42,6 +42,10 @@ public class UIServer {
         }
     }
 
+    public static void clearLists() {
+        frame.getContentPane().removeAll();
+    }
+
     public static void addList(final String sListId, final List<Card> listOfCards) {
         JPanel f = new ListPanel(sListId, listOfCards);
         frame.getContentPane().add(f);

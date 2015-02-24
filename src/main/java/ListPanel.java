@@ -21,7 +21,7 @@ class ListPanel extends JPanel
         for(Component c : this.getComponents())
         {
             // Don't toggle top 2 components
-            if (i++ < 2) continue;
+            if (i++ < 1) continue;
             c.setVisible(isDroppedDown);
             //c.setSize(0,0);
         }
@@ -34,16 +34,27 @@ class ListPanel extends JPanel
         //topFrame.repaint();
     }
 
-    private void addCardButton(Card c, boolean bStartAsInvisible)
+    private void addCardButton(final Card c, boolean bStartAsInvisible)
     {
         // Define button and tool tip text
         JButton button = new JButton("");
 
-        button.setText(
-                c.getName().length() > MAX_CHARACTERS_IN_TITLE
+        String title = c.getName().length() > MAX_CHARACTERS_IN_TITLE
                 ? c.getName().substring(0, MAX_CHARACTERS_IN_TITLE) + "..."
-                : c.getName());
+                : c.getName();
 
+        long unixTime = System.currentTimeMillis() / 1000L;
+        long timestamp = Long.parseLong(c.getId().substring(0,8), 16);
+        int daysago = (int)(unixTime - timestamp)/60/60/24;
+        button.setText( title + ":" + daysago);
+
+        button.addMouseListener(new MouseAdapter() {
+            public void mouseReleased(MouseEvent ev) {
+                if (!ev.isPopupTrigger()) {
+                    toggleDropDown();
+                }
+            }
+        });
         button.setForeground(Color.blue);
         button.setContentAreaFilled(false);
         button.setFocusPainted(false);
@@ -65,6 +76,8 @@ class ListPanel extends JPanel
                 String newCardTitle = JOptionPane.showInputDialog("New card");
                 try {
                     TrelloClient.GetInstance().newCardToList(sListId, newCardTitle);
+
+                    TrelloClient.GetInstance().updateOnce();
                 }catch(Exception ex)
                 {
                     System.out.println(ex);
@@ -76,7 +89,7 @@ class ListPanel extends JPanel
             public void actionPerformed(ActionEvent e)
             {
                 System.out.println("archiving card");
-                TrelloClient.GetInstance().archiveCard(cards.get(0));
+                TrelloClient.GetInstance().archiveCard(c);
             }
         });
 
@@ -123,7 +136,7 @@ class ListPanel extends JPanel
             {
                 bFirstCard = false;
                 addCardButton(c, /*bStartInvisible*/ false);
-                addDropdownButton();
+                //addDropdownButton();
             }
             else
             {

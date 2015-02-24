@@ -85,8 +85,16 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
         }
     }
 
+    public void updateOnce() throws Exception
+    {
+        doWork();
+    }
+
     private void doWork() throws Exception
     {
+
+        UIServer.clearLists();
+
         for (int nCurrentList = 0; nCurrentList < configListArray.size(); nCurrentList++)
         {
             List<Card> bs2 = null;
@@ -116,7 +124,7 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
 
             for (Card c : bs2)
             {
-                System.out.println("name:" + c.getName());
+                System.out.println("name:" + c.getName() + " id:" + c.getId());
             }
 
             UIServer.addList(listId, bs2);
