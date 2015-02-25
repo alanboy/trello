@@ -1,0 +1,3 @@
+[submodule "trello4j"]
+	path = trello4j
+	url = https://github.com/alanboy/trello4j.git
