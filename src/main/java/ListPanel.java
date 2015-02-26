@@ -12,7 +12,7 @@ class ListPanel extends JPanel
     private List<Card> cards;
     private final String sListId;
     private boolean isDroppedDown = false;
-    private int MAX_CHARACTERS_IN_TITLE = 16;
+    private int MAX_CHARACTERS_IN_TITLE = 24;
 
     private void toggleDropDown()
     {
@@ -20,33 +20,34 @@ class ListPanel extends JPanel
         int i= 0;
         for(Component c : this.getComponents())
         {
-            // Don't toggle top 2 components
+            // Don't toggle first component
             if (i++ < 1) continue;
             c.setVisible(isDroppedDown);
-            //c.setSize(0,0);
         }
-        //this.getTopLevelAncestor()
-        //JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
 
         JFrame topFrame = (JFrame) SwingUtilities.windowForComponent(this);
         topFrame.pack();
-        //topFrame.setLocation(200, 100);
-        //topFrame.repaint();
     }
 
     private void addCardButton(final Card c, boolean bStartAsInvisible)
     {
-        // Define button and tool tip text
-        JButton button = new JButton("");
-
         String title = c.getName().length() > MAX_CHARACTERS_IN_TITLE
                 ? c.getName().substring(0, MAX_CHARACTERS_IN_TITLE) + "..."
                 : c.getName();
 
+        // The first 8 character of the card are the unix timestamp of creation
         long unixTime = System.currentTimeMillis() / 1000L;
         long timestamp = Long.parseLong(c.getId().substring(0,8), 16);
-        int daysago = (int)(unixTime - timestamp)/60/60/24;
-        button.setText( title + ":" + daysago);
+        int hoursago = (int)(unixTime - timestamp)/60/60;
+        int daysago = hoursago/24;
+
+        String html =  "<html><font color=blue>" + title + "</font>"
+            +  " <font color=red>" 
+            + ((daysago == 0) ? hoursago + "h" : daysago + "d")
+            + "</font></html>";
+
+        JButton button = new JButton(html);
+        button.setMargin(new Insets(0, 0, 0, 0));
 
         button.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent ev) {
@@ -55,13 +56,12 @@ class ListPanel extends JPanel
                 }
             }
         });
-        button.setForeground(Color.blue);
+
+        //button.setForeground(Color.blue);
         button.setContentAreaFilled(false);
         button.setFocusPainted(false);
 
-        if (c.getDesc().trim().length() > 0) {
-            button.setToolTipText(c.getDesc());
-        }
+        button.setToolTipText(c.getName() + "\n" + c.getDesc());
 
         // Contextual menu
         JPopupMenu buttonPopUp = new JPopupMenu();
