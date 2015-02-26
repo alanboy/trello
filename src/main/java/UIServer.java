@@ -15,11 +15,11 @@ import org.trello4j.model.*;
 import java.awt.*;
 
 public class UIServer {
-    static JFrame frame;
+    static JDialog frame;
 
     public static void createAndShowGUI() {
-        frame = new JFrame("Trello Client");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame = new JDialog();
+        //frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocation(200, 0);
         frame.setResizable(true);
         frame.setUndecorated(true);
@@ -27,11 +27,7 @@ public class UIServer {
         frame.setOpacity(0.9f);
 
         FlowLayout experimentLayout = new java.awt.FlowLayout();
-        //experimentLayout.setAlignment(java.awFlowLayout);
         frame.setLayout(experimentLayout);
-
-        //frame.pack();
-        //frame.setVisible(true);
 
         try {
             // Start TrelloClient WorkerThread, this call is non-blocking
