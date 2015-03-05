@@ -19,7 +19,6 @@ public class UIServer {
 
     public static void createAndShowGUI() {
         frame = new JDialog();
-        //frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocation(200, 0);
         frame.setResizable(true);
         frame.setUndecorated(true);
@@ -42,8 +41,12 @@ public class UIServer {
         frame.getContentPane().removeAll();
     }
 
-    public static void addList(final String sListId, final List<Card> listOfCards) {
-        JPanel f = new ListPanel(sListId, listOfCards);
+    public static void addList(
+            final String sListId, 
+            final List<Card> listOfCards,
+            List<org.trello4j.model.List> listsInBoard) {
+
+        JPanel f = new ListPanel(sListId, listOfCards, listsInBoard);
         frame.getContentPane().add(f);
         frame.pack();
         frame.setVisible(true);

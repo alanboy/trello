@@ -91,6 +91,7 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
         doWork();
     }
 
+    // Get all cards in list. Add them to UIServer.
     private void doWork() throws Exception
     {
 
@@ -123,13 +124,26 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
                 throw new Exception();
             }
 
-            for (Card c : bs2)
+            String idBoard;
+            List<org.trello4j.model.List> l = null;
+
+            if (bs2.size() != 0)
             {
-                System.out.println("name:" + c.getName() + " id:" + c.getId());
+                idBoard = bs2.get(0).getIdBoard();
+
+                l = getListsInBoard(idBoard);
+
             }
 
-            UIServer.addList(listId, bs2);
+            UIServer.addList(listId, bs2, l);
         }
+    }
+
+    public List<org.trello4j.model.List> getListsInBoard(String idBoard)
+    {
+        List<org.trello4j.model.List> l = trello4jClient.getListByBoard(idBoard, null);
+
+        return l;
     }
 
     public void archiveCard(Card c) // throws Exception
@@ -137,9 +151,28 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
         if (!isInitialized)
         {
            // throw new Exception("Client has not been initialized.");
+           return;
         }
 
         trello4jClient.closeCard(c.getId());
+
+    }
+
+    // Look for a list that is called, "Done" and move cCard to that list
+    public void moveCardToList(Card cCard, String sListId) // throws Exception
+    {
+        if (!isInitialized)
+        {
+           // throw new Exception("Client has not been initialized.");
+           return;
+        }
+
+        // search for card called "done"
+
+        trello4jClient.moveCard(cCard.getId(), sListId);
+        System.out.println(
+                "Move card " + cCard.getId() + " to list " + sListId
+               );
 
     }
 

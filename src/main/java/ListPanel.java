@@ -13,6 +13,8 @@ class ListPanel extends JPanel
     private final String sListId;
     private boolean isDroppedDown = false;
     private int MAX_CHARACTERS_IN_TITLE = 24;
+    private List<org.trello4j.model.List>  listsInBoard;
+
 
     private void toggleDropDown()
     {
@@ -41,6 +43,7 @@ class ListPanel extends JPanel
         int hoursago = (int)(unixTime - timestamp)/60/60;
         int daysago = hoursago/24;
 
+        // TODO: color depending on the number of days
         String html =  "<html><font color=blue>" + title + "</font>"
             +  " <font color=red>" 
             + ((daysago == 0) ? hoursago + "h" : daysago + "d")
@@ -57,7 +60,6 @@ class ListPanel extends JPanel
             }
         });
 
-        //button.setForeground(Color.blue);
         button.setContentAreaFilled(false);
         button.setFocusPainted(false);
 
@@ -65,18 +67,27 @@ class ListPanel extends JPanel
 
         // Contextual menu
         JPopupMenu buttonPopUp = new JPopupMenu();
-        JMenuItem newCardMenu = new JMenuItem("New card");
-        JMenuItem showNextCardMenu = new JMenuItem("Archive card");
-        JMenuItem configurationMenu = new JMenuItem("Configuration ");
-        JMenuItem exitMenu = new JMenuItem("Exit");
 
-        newCardMenu.addActionListener(new ActionListener(){
+
+        JMenu moveToDoneMenu = new JMenu("Move to ...");
+        int i = 0;
+        for (org.trello4j.model.List listInBoard : listsInBoard)
+        {
+            JMenuItem menuForList = new JMenuItem(listInBoard.getName(), i++);
+
+            foo f = new foo();
+            f.sListId = listInBoard.getId();
+            f.c = c;
+            menuForList.addActionListener(f);
+
+            moveToDoneMenu.add(menuForList);
+        }
+
+        JMenuItem refreshMenu = new JMenuItem("Refresh");
+        refreshMenu.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent ev)
             {
-                String newCardTitle = JOptionPane.showInputDialog("New card");
                 try {
-                    TrelloClient.GetInstance().newCardToList(sListId, newCardTitle);
-
                     TrelloClient.GetInstance().updateOnce();
                 }catch(Exception ex)
                 {
@@ -85,7 +96,32 @@ class ListPanel extends JPanel
             }
         });
 
-        showNextCardMenu.addActionListener(new ActionListener(){
+        JMenuItem newCardMenu = new JMenuItem("New card");
+        newCardMenu.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent ev)
+            {
+                String newCardTitle = JOptionPane.showInputDialog("New card");
+                try {
+                    TrelloClient.GetInstance().newCardToList(sListId, newCardTitle);
+                    TrelloClient.GetInstance().updateOnce();
+                }catch(Exception ex)
+                {
+                    System.out.println(ex);
+                }
+            }
+        });
+
+
+        JMenuItem exitMenu = new JMenuItem("Exit");
+        exitMenu.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e)
+            {
+                System.exit(0);
+            }
+        });
+
+        JMenuItem archiveCardMenu = new JMenuItem("Archive card");
+        archiveCardMenu.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e)
             {
                 System.out.println("archiving card");
@@ -93,10 +129,11 @@ class ListPanel extends JPanel
             }
         });
 
+        // Add menus
         buttonPopUp.add(newCardMenu);
-        buttonPopUp.add(showNextCardMenu);
+        buttonPopUp.add(moveToDoneMenu);
+        buttonPopUp.add(archiveCardMenu);
         buttonPopUp.addSeparator();
-        buttonPopUp.add(configurationMenu);
         buttonPopUp.add(exitMenu);
         button.setComponentPopupMenu(buttonPopUp);
 
@@ -105,28 +142,11 @@ class ListPanel extends JPanel
         this.add(button);
     }
 
-    private void addDropdownButton()
-    {
-        JButton button = new JButton("");
-
-        button.setText("^");
-        button.setForeground(Color.RED);
-        button.setContentAreaFilled(false);
-        button.addMouseListener(new MouseAdapter() {
-            public void mouseReleased(MouseEvent ev) {
-                if (!ev.isPopupTrigger()) {
-                    toggleDropDown();
-                }
-            }
-        });
-        button.setFocusPainted(false);
-        this.add(button);
-    }
-
-    ListPanel(final String sListId, final List<Card> cards)
+    ListPanel(final String sListId, final List<Card> cards, List<org.trello4j.model.List> listsInBoard)
     {
         this.sListId = sListId;
         this.cards = cards;
+        this.listsInBoard = listsInBoard;
 
         int i = 0;
         boolean bFirstCard = true;
@@ -136,7 +156,6 @@ class ListPanel extends JPanel
             {
                 bFirstCard = false;
                 addCardButton(c, /*bStartInvisible*/ false);
-                //addDropdownButton();
             }
             else
             {
@@ -144,10 +163,25 @@ class ListPanel extends JPanel
             }
         }
 
-        //this.setLayout(new GridLayout(0,1));
         this.setLayout(new InvisibleGridLayout(0,1));
          this.setAlignmentY(Component.TOP_ALIGNMENT);
-        //this.setAlignmentY(0);
         System.out.println("done adding cards to list");
     }
+}
+class foo implements ActionListener{
+    public String sListId;
+    public Card c;
+
+    public void actionPerformed(ActionEvent ev)
+    {
+        try {
+            System.out.println("moving to " + sListId);
+            TrelloClient.GetInstance().moveCardToList(c, sListId);
+            TrelloClient.GetInstance().updateOnce();
+        }catch(Exception ex)
+        {
+            System.out.println(ex);
+        }
+    }
+
 }
