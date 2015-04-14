@@ -10,6 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.*;
+
+import java.awt.Desktop;
+import java.net.URI;
+import java.net.*;
+
 import org.trello4j.*;
 import org.trello4j.model.*;
 
@@ -22,6 +27,27 @@ import org.trello4j.model.*;
 public class TrelloCmd
 {
     private static TrelloClient tClient;
+
+    private static void updateJsonToken()
+    {
+        if(Desktop.isDesktopSupported())
+        {
+            try
+            {
+                Desktop.getDesktop().browse(
+                        new URI("https://trello.com/1/authorize?key="+
+                            TrelloClient.getKey()
+                            +"&expiration=30days&name=trelloc&response_type=token&scope=read,write,account"));
+            }
+            catch (URISyntaxException e)
+            {
+
+            }
+            catch (IOException ioe)
+            {
+            }
+        }
+    }
 
     public static void main(String[] args)
     {
@@ -40,7 +66,7 @@ public class TrelloCmd
         }
         catch (Exception e)
         {
-            System.out.println(e);
+            updateJsonToken();
             return;
         }
 

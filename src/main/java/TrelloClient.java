@@ -32,6 +32,11 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
     {
     }
 
+    public static String getKey()
+    {
+        return API_KEY;
+    }
+
     public List<org.trello4j.model.List> getListsFromBoard(Board board) throws Exception
     {
         if (!isInitialized)
