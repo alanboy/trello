@@ -266,37 +266,42 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
         return true;
     }
 
-    /**
-      * @TODO make this resilient to non-existing config file (create a new one)
-      *
-      **/
+    public void writeConfig(String token, String lists)
+    {
+    
+    }
+
+    public boolean configExist()
+    {
+        String config = (explicitConfigLocation == null) ? System.getProperty("user.home") + "/trello.json"
+                            :explicitConfigLocation;
+
+        return (new File(config).isFile());
+    }
+
     private boolean readConfig()
     {
+
+        String config = (explicitConfigLocation == null) ? System.getProperty("user.home") + "/trello.json"
+                            :explicitConfigLocation;
+        String json = "";
         try
         {
             BufferedReader br;
-            if (explicitConfigLocation != null)
-            {
-                 br = new BufferedReader(new FileReader(explicitConfigLocation));
-            }
-            else
-            {
-                 br = new BufferedReader(new FileReader(System.getProperty("user.home") + "\\trello.json"));
-            }
-            String json = "";
+            br = new BufferedReader(new FileReader(config));
+
             String s;
 
             while((s = br.readLine()) != null) json += s;
 
-            return parseConfig(json);
         }
         catch(IOException ioe)
         {
-            System.out.println("does trello.json exist? try putting it here : "
-                    + System.getProperty("user.home") + " or choose your own location and pass it in a -c switch");
+            System.out.println("Problem reading your config (" + config + ") :" + ioe);
             return false;
         }
 
+        return parseConfig(json);
     }
 
 }

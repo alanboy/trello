@@ -41,17 +41,25 @@ public class TrelloCmd
             }
             catch (URISyntaxException e)
             {
-
+                System.out.println(e);
             }
             catch (IOException ioe)
             {
+                System.out.println(ioe);
             }
         }
+
     }
 
     public static void main(String[] args)
     {
         tClient = TrelloClient.GetInstance();
+
+        if (!tClient.configExist())
+        {
+            updateJsonToken();
+            return;
+        }
 
         try
         {
