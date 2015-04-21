@@ -6,7 +6,7 @@ version = '0.0.1-SNAPSHOT'
 repositories {
     mavenCentral()
     flatDir{
-        dirs 'trello4j\\target'
+        dirs 'trello4j/target'
     }
 }
 
