@@ -65,5 +65,21 @@ Use those list ids to put in your config.json file.
 
 Finally (!), run the client: `javaw -cp C:\trello\ -jar C:\trello\trello-0.0.1-SNAPSHOT.jar`
 
-
+	/---------\   /---------\   /----------\
+	|         |   |         |   |          |
+	|TrelloCmd|   |UIServer |   |ListPanel |
+	|         |   |         |   |          |
+	|         |<->|         |<->|          |
+	|         |   |         |   |          |
+	|         |   |         |   |          |
+	|         |   |         |   |          |
+	\---------/   \---------/   \----------/ 
+	      ^            ^
+	      |            |
+	/-------------------------\
+	|                         |
+	|TrelloClient             |
+	|                         |
+	|                         |
+	\-------------------------/
 
