@@ -19,7 +19,8 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
 {
     private static final String API_KEY = "c67c1cdec3b70b84a052b4d085c15eb1";
     private static final int MAX_API_CALLS = 1;
-    private static final int UPDATE_INTERVAL = 1000 * 60 * 60; // 1 Hour
+    private static final int UPDATE_INTERVAL = 60 * 15; // 15 minutes
+    private static final int ONE_SECOND = 1000;
 
     private JsonArray configListArray;
     private String configUserToken;
@@ -27,6 +28,7 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
     private boolean isInitialized;
     private static TrelloClient trelloInstance;
     private String explicitConfigLocation;
+    private long secondsSinceUpdate = 0;
 
     private TrelloClient()
     {
@@ -83,11 +85,21 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
             throw new Exception("Client has not been initialized.");
         }
 
+        doWork();
+
         for (int nApiCalls = 0; ;nApiCalls++)
         {
-            doWork();
+            Thread.sleep(ONE_SECOND);
 
-            Thread.sleep(UPDATE_INTERVAL);
+            secondsSinceUpdate++;
+
+            if (secondsSinceUpdate > UPDATE_INTERVAL)
+            {
+                doWork();
+                secondsSinceUpdate = 0;
+            }
+
+            UIServer.updateTimes();
         }
     }
 
@@ -99,7 +111,6 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
     // Get all cards in list. Add them to UIServer.
     private void doWork() throws Exception
     {
-
         UIServer.clearLists();
 
         for (int nCurrentList = 0; nCurrentList < configListArray.size(); nCurrentList++)
@@ -288,6 +299,7 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
         try
         {
             BufferedReader br;
+
             br = new BufferedReader(new FileReader(config));
 
             String s;

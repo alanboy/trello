@@ -51,5 +51,14 @@ public class UIServer {
         frame.pack();
         frame.setVisible(true);
     }
+
+
+    public static void updateTimes()
+    {
+        for(Component c : frame.getContentPane().getComponents())
+        {
+            ((ListPanel)c).updateTimes();
+        }
+    }
 }
 

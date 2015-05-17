@@ -12,9 +12,7 @@ class ListPanel extends JPanel
     private List<Card> cards;
     private final String sListId;
     private boolean isDroppedDown = false;
-    private int MAX_CHARACTERS_IN_TITLE = 24;
     private List<org.trello4j.model.List>  listsInBoard;
-
 
     private void toggleDropDown()
     {
@@ -31,25 +29,19 @@ class ListPanel extends JPanel
         topFrame.pack();
     }
 
+    public void updateTimes()
+    {
+        for(Component c : this.getComponents())
+        {
+            CardButton card = (CardButton)c;
+
+            card.update();
+        }
+    }
+
     private void addCardButton(final Card c, boolean bStartAsInvisible)
     {
-        String title = c.getName().length() > MAX_CHARACTERS_IN_TITLE
-                ? c.getName().substring(0, MAX_CHARACTERS_IN_TITLE) + "..."
-                : c.getName();
-
-        // The first 8 character of the card are the unix timestamp of creation
-        long unixTime = System.currentTimeMillis() / 1000L;
-        long timestamp = Long.parseLong(c.getId().substring(0,8), 16);
-        int hoursago = (int)(unixTime - timestamp)/60/60;
-        int daysago = hoursago/24;
-
-        // TODO: color depending on the number of days
-        String html =  "<html><font color=blue>" + title + "</font>"
-            +  " <font color=red>" 
-            + ((daysago == 0) ? hoursago + "h" : daysago + "d")
-            + "</font></html>";
-
-        JButton button = new JButton(html);
+        CardButton button = new CardButton(c);
         button.setMargin(new Insets(0, 0, 0, 0));
 
         button.addMouseListener(new MouseAdapter() {
@@ -68,7 +60,6 @@ class ListPanel extends JPanel
         // Contextual menu
         JPopupMenu buttonPopUp = new JPopupMenu();
 
-
         JMenu moveToListMenu = new JMenu("Move to ...");
         for (org.trello4j.model.List listInBoard : listsInBoard) {
             JMenuItem menuForList = new JMenuItem(listInBoard.getName());
@@ -81,9 +72,11 @@ class ListPanel extends JPanel
         refreshMenu.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent ev)
             {
-                try {
+                try
+                {
                     TrelloClient.GetInstance().updateOnce();
-                }catch(Exception ex)
+                }
+                catch(Exception ex)
                 {
                     System.out.println(ex);
                 }
@@ -95,16 +88,17 @@ class ListPanel extends JPanel
             public void actionPerformed(ActionEvent ev)
             {
                 String newCardTitle = JOptionPane.showInputDialog("New card");
-                try {
+                try
+                {
                     TrelloClient.GetInstance().newCardToList(sListId, newCardTitle);
                     TrelloClient.GetInstance().updateOnce();
-                }catch(Exception ex)
+                }
+                catch(Exception ex)
                 {
                     System.out.println(ex);
                 }
             }
         });
-
 
         JMenuItem exitMenu = new JMenuItem("Exit");
         exitMenu.addActionListener(new ActionListener(){
@@ -118,8 +112,15 @@ class ListPanel extends JPanel
         archiveCardMenu.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e)
             {
-                System.out.println("archiving card");
-                TrelloClient.GetInstance().archiveCard(c);
+                try
+                {
+                    TrelloClient.GetInstance().archiveCard(c);
+                    TrelloClient.GetInstance().updateOnce();
+                }
+                catch(Exception ex)
+                {
+                    System.out.println(ex);
+                }
             }
         });
 
