@@ -19,7 +19,7 @@ public class UIServer {
 
     public static void createAndShowGUI() {
         frame = new JDialog();
-        frame.setLocation(200, 0);
+        frame.setLocation(200, System.getProperty("os.name").toLowerCase().startsWith("mac") ? 25 : 0 );
         frame.setResizable(true);
         frame.setUndecorated(true);
         frame.setAlwaysOnTop(true);
