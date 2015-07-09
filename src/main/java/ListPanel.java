@@ -62,6 +62,12 @@ class ListPanel extends JPanel
 
         JMenu moveToListMenu = new JMenu("Move to ...");
         for (org.trello4j.model.List listInBoard : listsInBoard) {
+
+            // dont move to the current list
+            if (c.getIdList().equals(listInBoard.getId())) {
+                continue;
+            }
+
             JMenuItem menuForList = new JMenuItem(listInBoard.getName());
             MoveToListAction f = new MoveToListAction(c, listInBoard.getId());
             menuForList.addActionListener(f);
