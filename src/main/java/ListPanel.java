@@ -106,6 +106,21 @@ class ListPanel extends JPanel
             }
         });
 
+        JMenuItem hideForAWhile = new JMenuItem("Hide 5min");
+        hideForAWhile.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e)
+            {
+                try
+                {
+                    TrelloClient.GetInstance().stopForAWhile();
+                }
+                catch(Exception ex)
+                {
+                    System.out.println(ex);
+                }
+            }
+        });
+
         JMenuItem exitMenu = new JMenuItem("Exit");
         exitMenu.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e)
@@ -141,9 +156,10 @@ class ListPanel extends JPanel
         // Add menus
         buttonPopUp.add(newCardMenu);
         buttonPopUp.add(moveToListMenu);
-        buttonPopUp.add(refreshMenu);
         buttonPopUp.add(archiveCardMenu);
         buttonPopUp.addSeparator();
+        buttonPopUp.add(hideForAWhile);
+        buttonPopUp.add(refreshMenu);
         buttonPopUp.add(exitMenu);
         button.setComponentPopupMenu(buttonPopUp);
 

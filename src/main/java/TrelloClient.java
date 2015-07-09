@@ -21,6 +21,7 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
     private static final int MAX_API_CALLS = 1;
     private static final int UPDATE_INTERVAL = 60 * 15; // 15 minutes
     private static final int ONE_SECOND = 1000;
+    private static final int FIVE_MINUTES = ONE_SECOND * 60 * 5;
 
     private JsonArray configListArray;
     private String configUserToken;
@@ -105,6 +106,13 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
         }
     }
 
+    public void stopForAWhile() throws Exception
+    {
+        UIServer.setVisible(false);
+        Thread.sleep(FIVE_MINUTES);
+        UIServer.setVisible(true);
+    }
+
     public void updateOnce() throws Exception
     {
         doWork();
@@ -113,20 +121,23 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
     // Get all cards in list. Add them to UIServer.
     private void doWork() throws Exception
     {
+        System.out.println("Entering doWork()");
+
         UIServer.clearLists();
 
         for (int nCurrentList = 0; nCurrentList < configListArray.size(); nCurrentList++)
         {
             List<Card> bs2 = null;
-            System.out.println("[apicall] getCardsByList");
             String listId = configListArray.get(nCurrentList).toString().replace('"', ' ').trim();
 
             try
             {
                 bs2 = trello4jClient.getCardsByList(listId);
+                System.out.println("[apicall] getCardsByList [OK]");
             }
             catch(Exception e)
             {
+                System.out.println("[apicall] getCardsByList [FAILED]");
                 System.out.println(e);
             }
 
@@ -155,6 +166,8 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
 
             UIServer.addList(listId, bs2, l);
         }
+
+        System.out.println("Exiting doWork()");
     }
 
     public List<org.trello4j.model.List> getListsInBoard(String idBoard)

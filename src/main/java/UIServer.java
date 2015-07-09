@@ -47,9 +47,12 @@ public class UIServer {
             List<org.trello4j.model.List> listsInBoard) {
 
         JPanel f = new ListPanel(sListId, listOfCards, listsInBoard);
+
+        System.out.println("about to add list " + sListId + " to frame" );
         frame.getContentPane().add(f);
         frame.pack();
         frame.setVisible(true);
+        System.out.println("Done adding Jpanel to the frame for list " + sListId);
     }
 
 
@@ -59,6 +62,10 @@ public class UIServer {
         {
             ((ListPanel)c).updateTimes();
         }
+    }
+
+    public static void setVisible(boolean visible) {
+        frame.setVisible(visible);
     }
 }
 
