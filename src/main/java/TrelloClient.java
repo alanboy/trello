@@ -30,6 +30,8 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
     private String explicitConfigLocation;
     private long secondsSinceUpdate = 0;
 
+    private JsonObject jObject; // Store configuration object
+
     private TrelloClient()
     {
     }
@@ -219,7 +221,18 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
             throw new Exception("Client has already been initialized");
         }
 
-        boolean canContinue = readConfig();
+        String configJson = readConfig();
+        boolean canContinue = false;
+
+        try
+        {
+            canContinue = parseConfig(configJson);
+        }
+        catch (com.google.gson.JsonSyntaxException jse)
+        {
+            //@TODO json is bad, lets back it up and start a new one
+            throw new Exception("json is bad");
+        }
 
         if (!canContinue)
         {
@@ -255,13 +268,23 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
     private boolean parseConfig(String s)
     {
         JsonElement jElement = new JsonParser().parse(s);
-        JsonObject  jObject = jElement.getAsJsonObject();
+        jObject = jElement.getAsJsonObject();
 
         // Search for usertoken
         configUserToken = jObject.get("usertoken").toString();
         if (null == configUserToken)
         {
             System.out.println("config.json is missing the usertoken");
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean loadLists()
+    {
+        if (!isInitialized)
+        {
             return false;
         }
 
@@ -277,22 +300,52 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
         return true;
     }
 
-    public void writeConfig(String token, String lists)
-    {
-    
-    }
-
     public boolean configExist()
     {
         String config = (explicitConfigLocation == null) ? System.getProperty("user.home") + "/trello.json"
                             :explicitConfigLocation;
 
+        System.out.println("Found configuration at:" + config);
+
         return (new File(config).isFile());
     }
 
-    private boolean readConfig()
+    public boolean writeTokenToConfig(String token)
     {
+        if (!configExist())
+        {
+            System.out.println("config does not exist");
+			return false;
+        }
 
+        String config = readConfig();
+
+        System.out.println(config);
+
+        JsonElement jElement = new JsonParser().parse(config);
+
+        JsonObject jObject = jElement.getAsJsonObject();
+
+        jObject.addProperty("usertoken", token);
+
+        String explicitConfigLocation = null;
+        String configPath = (explicitConfigLocation == null) ? System.getProperty("user.home") + "/trello.json"
+                            :explicitConfigLocation;
+
+        try {
+            PrintWriter pw = new PrintWriter(configPath);
+            pw.println(jObject.toString());
+            pw.flush();
+            pw.close();
+        } catch (FileNotFoundException fnfe) {
+            System.out.println(fnfe);
+        }
+
+        return true;
+    }
+
+    private String readConfig()
+    {
         String config = (explicitConfigLocation == null) ? System.getProperty("user.home") + "/trello.json"
                             :explicitConfigLocation;
         String json = "";
@@ -310,10 +363,10 @@ public class TrelloClient extends SwingWorker<Integer, Integer>
         catch(IOException ioe)
         {
             System.out.println("Problem reading your config (" + config + ") :" + ioe);
-            return false;
+            return null;
         }
 
-        return parseConfig(json);
+        return json;
     }
 
 }

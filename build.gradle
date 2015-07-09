@@ -1,7 +1,7 @@
 apply plugin: "java"
 apply plugin:'application'
 
-version = '0.0.1-SNAPSHOT'
+version = '0.0.2'
 
 repositories {
     mavenCentral()
@@ -12,6 +12,7 @@ repositories {
 
 dependencies {
     compile ('org.trello4j:trello4j:1.0-SNAPSHOT', 'com.google.code.gson:gson:2.1')
+    compile files("${System.properties['java.home']}\\lib\\jfxrt.jar")
 }
 
 sourceSets {
@@ -41,3 +42,4 @@ jar.doLast {
 }
 
 mainClassName = "TrelloCmd"
+

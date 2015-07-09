@@ -63,8 +63,21 @@ You will get something like this:
 
 Use those list ids to put in your config.json file.
 
-Finally (!), run the client: `javaw -cp C:\trello\ -jar C:\trello\trello-0.0.1-SNAPSHOT.jar`
+Finally (!), run the client: `javaw -cp C:\trello\ -jar C:\trello\trello-0.0.1-SNAPSHOT.jar` or just do `gradle run`
 
+
+				  /---------\
+				  |         |
+				  |Simple   |
+				  | Browser |
+				  |         |
+				  |         |
+				  |         |
+				  |         |
+				  \---------/
+						^
+						|
+						|
 	/---------\   /---------\   /----------\
 	|         |   |         |   |          |
 	|TrelloCmd|   |UIServer |   |ListPanel |
@@ -79,7 +92,8 @@ Finally (!), run the client: `javaw -cp C:\trello\ -jar C:\trello\trello-0.0.1-S
 	/-------------------------\
 	|                         |
 	|TrelloClient             |
-	|                         |
+	| (com with trello.com)   |
 	|                         |
 	\-------------------------/
+
 

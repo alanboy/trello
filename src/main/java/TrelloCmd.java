@@ -27,29 +27,25 @@ import org.trello4j.model.*;
 public class TrelloCmd
 {
     private static TrelloClient tClient;
+    final static String url = "https://trello.com/1/authorize?key="+
+                            TrelloClient.getKey()
+                            +"&expiration=30days&name=trelloc&response_type=token&scope=read,write,account";
 
     private static void updateJsonToken()
     {
-        if(Desktop.isDesktopSupported())
-        {
-            try
-            {
-                Desktop.getDesktop().browse(
-                        new URI("https://trello.com/1/authorize?key="+
-                            TrelloClient.getKey()
-                            +"&expiration=30days&name=trelloc&response_type=token&scope=read,write,account"));
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                SimpleSwingBrowser browser = new SimpleSwingBrowser();
+                browser.setVisible(true);
+                browser.loadURL(url);
             }
-            catch (URISyntaxException e)
-            {
-                System.out.println(e);
-            }
-            catch (IOException ioe)
-            {
-                System.out.println(ioe);
-            }
-        }
-
+        });
     }
+
+    public static void writeNewToken(String token) {
+        tClient.writeTokenToConfig(token);
+    }
+
 
     public static void main(String[] args)
     {
@@ -57,7 +53,10 @@ public class TrelloCmd
 
         if (!tClient.configExist())
         {
+            System.out.println("Config file does not exist");
+
             updateJsonToken();
+
             return;
         }
 
@@ -74,7 +73,10 @@ public class TrelloCmd
         }
         catch (Exception e)
         {
+            System.out.println(e);
+
             updateJsonToken();
+
             return;
         }
 
@@ -98,6 +100,14 @@ public class TrelloCmd
             {
                 System.out.println(e);
             }
+            return;
+        }
+
+        boolean configHasLists = tClient.loadLists();
+
+        if (!configHasLists)
+        {
+            JOptionPane.showMessageDialog(null, "you dont have any lists specified in your config. run again with -b option", "No lists", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
