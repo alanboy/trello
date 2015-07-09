@@ -127,6 +127,7 @@ class ListPanel extends JPanel
         // Add menus
         buttonPopUp.add(newCardMenu);
         buttonPopUp.add(moveToListMenu);
+        buttonPopUp.add(refreshMenu);
         buttonPopUp.add(archiveCardMenu);
         buttonPopUp.addSeparator();
         buttonPopUp.add(exitMenu);
