@@ -112,6 +112,14 @@ class ListPanel extends JPanel
         archiveCardMenu.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e)
             {
+                int response = JOptionPane.showConfirmDialog(null,
+                    "Archive?", "Are you sure you want to archive " + c.getName(), JOptionPane.YES_NO_OPTION);
+
+                if (response != 0) // 0 means YES
+                {
+                    return;
+                }
+
                 try
                 {
                     TrelloClient.GetInstance().archiveCard(c);
