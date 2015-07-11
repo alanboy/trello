@@ -3,51 +3,47 @@ Desktop Trello Bugger
 
 ## Instructions for development ##
 
-### Clone ###
+### Windows ###
 C:\Users\Alan\\**t**>`git clone https://github.com/alanboy/trello.git`
-
 C:\Users\Alan\t\\**trello**>`git submodule init`
-
 C:\Users\Alan\t\\**trello** >`git submodule update --init --recursive`
 
-### Build trello4j ###
-Add maven and requirements to your path:
+Build trello4j and add maven and requirements to your path:
 
 	SET PATH=%PATH%;c:\Users\Alan\maven\bin\
 	SET JAVA_HOME=c:\Program Files\Java\jdk1.7.0_51\
 
 C:\Users\Alan\t\trello\\**trello4j**>`mvn install -DskipTests`
 
-You should end up with trello4j in a JAR:
+You should end up with **trello4j** in a JAR:
 `C:\Users\Alan\t\trello\trello4j\target\trello4j-1.0-SNAPSHOT.jar`
 
-### Build trello client ###
 Add gradle to your path:
 
 	SET PATH=%PATH%;C:\Users\Alan\gradle-2.2.1\bin\
 
 C:\Users\Alan\t\\**trello**>`gradle build`
-
 C:\Users\Alan\t\\**trello**>`gradle run`
 
 Follow instructions for usage.
 
-## Instructions for usage ##
+## Linux ##
 
-Download latest trello client: [https://github.com/alanboy/trello/releases/download/v0.1.0.0/trello-0.1.0.0.zip](https://github.com/alanboy/trello/releases/download/v0.1.0.0/trello-0.1.0.0.zip)
+trelloc uses javafx and a package of javafx is not included in openjdk which is what most distributions have. dowload an oracle version of the JDK http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html and expand locally  then create a file a `gradle.properties` with will containg something like this:
 
-Decompress to *C:\\trello\\*
+	org.gradle.java.home=/home/alan/Downloads/jdk1.8.0_45/
+	
+then use `gradle build` and `gradle run` as normal.
 
-Create a config.json file in your user home directory:
+Download latest trello client you can find [here](https://github.com/alanboy/trello/tree/master/dist)
 
-**c:\users\alan\trello.json**
+Decompress to *C:\\trello\\* and double click trello jar just do `gradle run`.
 
-    {
-        "usertoken" : "60a1bb704dab4b885ae48e8493705cc0b876288600000000",
-        "lists"  : [ "51379a57cb9468d000000000" ]  
-    }
+Login to trello.com via this app and start using trelloc !
 
-To get a user token go to: [https://trello.com/1/authorize?key=c67c1cdec3b70b84a052b4d085c15eb1&expiration=30days&name=trelloc&response_type=token&scope=read,write,account](https://trello.com/1/authorize?key=c67c1cdec3b70b84a052b4d085c15eb1&expiration=30days&name=trelloc&response_type=token&scope=read,write,account) click *Allow* to get a token.
+ 
+
+## Advanced optiones/command line ##
 
 Run it in `-b` mode to show all lists you have access to: `java -cp C:\trello\ -jar C:\trello\trello-0.0.1-SNAPSHOT.jar -b`
 
@@ -63,8 +59,8 @@ You will get something like this:
 
 Use those list ids to put in your config.json file.
 
-Finally (!), run the client: `javaw -cp C:\trello\ -jar C:\trello\trello-0.0.1-SNAPSHOT.jar` or just do `gradle run`
 
+## trelloc architecture ##
 
 				  /---------\
 				  |         |
