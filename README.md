@@ -4,28 +4,27 @@ Desktop Trello Bugger
 ## Instructions for development ##
 
 ### Windows ###
-C:\Users\Alan\\**t**>`git clone https://github.com/alanboy/trello.git`
-C:\Users\Alan\t\\**trello**>`git submodule init`
-C:\Users\Alan\t\\**trello** >`git submodule update --init --recursive`
+
+	C:\Users\Alan\t>git clone https://github.com/alanboy/trello.git
+	C:\Users\Alan\t\trello>git submodule init
+	C:\Users\Alan\t\trello>git submodule update --init --recursive
 
 Build trello4j and add maven and requirements to your path:
 
 	SET PATH=%PATH%;c:\Users\Alan\maven\bin\
 	SET JAVA_HOME=c:\Program Files\Java\jdk1.7.0_51\
+	C:\Users\Alan\t\trello\trello4j>mvn install -DskipTests
 
-C:\Users\Alan\t\trello\\**trello4j**>`mvn install -DskipTests`
-
-You should end up with **trello4j** in a JAR:
-`C:\Users\Alan\t\trello\trello4j\target\trello4j-1.0-SNAPSHOT.jar`
+You should end up with **trello4j** in a JAR: `C:\Users\Alan\t\trello\trello4j\target\trello4j-1.0-SNAPSHOT.jar`
 
 Add gradle to your path:
 
 	SET PATH=%PATH%;C:\Users\Alan\gradle-2.2.1\bin\
 
-C:\Users\Alan\t\\**trello**>`gradle build`
-C:\Users\Alan\t\\**trello**>`gradle run`
+Now you can build and run:
 
-Follow instructions for usage.
+	C:\Users\Alan\t\trello>gradle build
+	C:\Users\Alan\t\trello>gradle run
 
 ## Linux ##
 
@@ -34,14 +33,6 @@ trelloc uses javafx and a package of javafx is not included in openjdk which is 
 	org.gradle.java.home=/home/alan/Downloads/jdk1.8.0_45/
 	
 then use `gradle build` and `gradle run` as normal.
-
-Download latest trello client you can find [here](https://github.com/alanboy/trello/tree/master/dist)
-
-Decompress to *C:\\trello\\* and double click trello jar just do `gradle run`.
-
-Login to trello.com via this app and start using trelloc !
-
- 
 
 ## Advanced optiones/command line ##
 
@@ -58,6 +49,16 @@ You will get something like this:
 	    List: Java Cert App - 54db8cd04d42996613cd518b
 
 Use those list ids to put in your config.json file.
+
+### Debuggging trelloc ###
+
+	jdb -classpath build/classes:build/libs/trello-0.0.2.jar TrelloCmd
+
+put a bp in a funtion
+
+	stop in TrelloClient.doWork
+	run
+
 
 
 ## trelloc architecture ##
