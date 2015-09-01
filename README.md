@@ -28,13 +28,13 @@ Now you can build and run:
 
 ## Linux ##
 
-trelloc uses javafx and a package of javafx is not included in openjdk which is what most distributions have. dowload an oracle version of the JDK http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html and expand locally  then create a file a `gradle.properties` with will containg something like this:
+trelloc uses javafx and a package of javafx is not included in openjdk which is what most distributions have. Download an Oracle JDK from http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html and expand locally  then create a file a `gradle.properties` with will containg something like this:
 
 	org.gradle.java.home=/home/alan/Downloads/jdk1.8.0_45/
-	
-then use `gradle build` and `gradle run` as normal.
 
-## Advanced optiones/command line ##
+then use `gradle build` and `gradle run` as above.
+
+## Advanced options/command line ##
 
 Run it in `-b` mode to show all lists you have access to: `java -cp C:\trello\ -jar C:\trello\trello-0.0.1-SNAPSHOT.jar -b`
 
@@ -48,20 +48,19 @@ You will get something like this:
 	    List: Teddy - 543f78b9933537aeaca5de38
 	    List: Java Cert App - 54db8cd04d42996613cd518b
 
-Use those list ids to put in your config.json file.
 
 ### Debuggging trelloc ###
 
-	jdb -classpath build/classes:build/libs/trello-0.0.2.jar TrelloCmd
+	jdb -classpath build\libs\trello-0.0.2.jar TrelloCmd
 
 put a bp in a funtion
 
 	stop in TrelloClient.doWork
 	run
+	use src\main\java
+	catch all *
 
-
-
-## trelloc architecture ##
+## Trello Architecture ##
 
 				  /---------\
 				  |         |
@@ -74,23 +73,51 @@ put a bp in a funtion
 				  \---------/
 						^
 						|
-						|
-	/---------\   /---------\   /----------\
-	|         |   |         |   |          |
-	|TrelloCmd|   |UIServer |   |ListPanel |
-	|         |   |         |   |          |
-	|         |<->|         |<->|          |
-	|         |   |         |   |          |
-	|         |   |         |   |          |
-	|         |   |         |   |          |
-	\---------/   \---------/   \----------/ 
+	/---------\   /---------\   /----------\   /----------\
+	|         |   |         |   |          |   |          |
+	|TrelloCmd|   |UIServer |   |ListPanel |   |CardButton|
+	| *       |   |  has-a  |   |  is-a    |   |          |
+	|         |<->| JDialog |<->|   JPanel |<->|          |
+	|         |   |         |   |          |   |          |
+	|         |   |         |   |          |   |          |
+	|         |   |         |   |          |   |          |
+	\---------/   \---------/   \----------/   \----------/
 	      ^            ^
 	      |            |
 	/-------------------------\
 	|                         |
-	|TrelloClient             |
-	| (com with trello.com)   |
+	|TrelloClient             | // trello client is the only thread waking up every second
 	|                         |
 	\-------------------------/
+			^
+			|
+	/-------------------------\   /--------------\
+	|                         |   |              |
+	|TrelloCache**            |<->|trello4j      |
+	|                         |   |              |
+	\-------------------------/   \--------------/
+	
+	
+	* Application entry point
+	** Not implemented
 
 
+
+	/----------------------------------\
+	| JDialog                          |
+	|                                  |
+	| /---------\  /-----------------\ |
+	| |         |  |                 | |
+	| |ListPanel|  |ListPanel        | | ListPanel extends JPanel
+	| |         |  |                 | |
+	| |         |  | /------------\  | |
+	| |         |  | |            |  | |
+	| |         |  | | CardButton |  | | CardButton extends JButton
+	| |         |  | |            |  | |
+	| |         |  | |            |  | |
+	| |         |  | \------------/  | |
+	| |         |  |                 | |
+	| \---------/  \-----------------/ |
+	|                                  |
+	\----------------------------------/
+	

@@ -49,6 +49,8 @@ import java.net.URL;
 
 import static javafx.concurrent.Worker.State.FAILED;
 
+import org.apache.logging.log4j.*;
+
 public class SimpleSwingBrowser extends JFrame {
 
     private final JFXPanel jfxPanel = new JFXPanel();
@@ -61,8 +63,11 @@ public class SimpleSwingBrowser extends JFrame {
     private final JTextField txtURL = new JTextField();
     private final JProgressBar progressBar = new JProgressBar();
 
+    static Logger log;
+
     public SimpleSwingBrowser() {
         super();
+        log = LogManager.getLogger();
         initComponents();
     }
 
@@ -106,11 +111,9 @@ public class SimpleSwingBrowser extends JFrame {
     }
 
     private void createScene() {
-
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-
                 WebView view = new WebView();
                 engine = view.getEngine();
 
@@ -144,9 +147,8 @@ public class SimpleSwingBrowser extends JFrame {
                         SwingUtilities.invokeLater(new Runnable() {
                             @Override
                             public void run() {
-                                System.out.println("Location changed : "  + newValue);
+                                log.info("Location changed : "  + newValue); // 
                                 txtURL.setText(newValue);
-
                             }
                         });
                     }
@@ -159,16 +161,18 @@ public class SimpleSwingBrowser extends JFrame {
                             @Override
                             public void run() {
                                 progressBar.setValue(newValue.intValue());
-        
+
                                 if (newValue.intValue() == 100) {
                                     Platform.runLater(new Runnable() {
                                         @Override
                                         public void run() {
-                                            //javaFX operations should go here
+
                                             if (engine.getLocation().equals("https://trello.com/1/token/approve")){
                                                 String token = (String)engine.executeScript("document.documentElement.getElementsByTagName(\"pre\")[0].innerHTML.trim()");
+
                                                 TrelloCmd.writeNewToken(token);
-                                                SimpleSwingBrowser.this.setTitle("Im done");
+
+                                                SimpleSwingBrowser.this.dispatchEvent(new WindowEvent(SimpleSwingBrowser.this, WindowEvent.WINDOW_CLOSING));
                                             }
 
                                         }

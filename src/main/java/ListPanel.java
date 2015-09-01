@@ -7,192 +7,89 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
-class ListPanel extends JPanel
-{
+import org.apache.logging.log4j.*;
+
+class ListPanel extends JPanel {
     private List<Card> cards;
     private final String sListId;
     private boolean isDroppedDown = false;
     private List<org.trello4j.model.List>  listsInBoard;
+    Logger log;
 
-    private void toggleDropDown()
-    {
+    ListPanel(final String sListId, final List<Card> cards, List<org.trello4j.model.List> listsInBoard) {
+        this.sListId = sListId;
+        this.cards = cards;
+        this.listsInBoard = listsInBoard;
+        this.log = LogManager.getLogger();
+
+        log.info("Creating new ListPanel:" + sListId);
+
+        update();
+
+        log.info("Done constructing a ListPanel for list : " + sListId);
+    }
+
+    private void update() {
+        log.info("Updating list cards/UI");
+
+        //this.removeAll();
+
+        boolean bFirstCard = true;
+        for (Card c : cards) {
+            CardButton cardButton = new CardButton(c, this);
+
+            boolean bVisible = bFirstCard || isDroppedDown;
+            cardButton.setVisible(bVisible);
+
+            if (bFirstCard) {
+                bFirstCard = false;
+            }
+
+            // Add CardButton (JButton) to ListPanel (JPanel)
+            this.add(cardButton);
+        }
+
+        this.setLayout(new InvisibleGridLayout(0,1));
+        this.setAlignmentY(Component.TOP_ALIGNMENT);
+    }
+
+    public List<org.trello4j.model.List> getListsInBoard() {
+        return this.listsInBoard;
+    }
+
+    public String getListId() {
+        return sListId;
+    }
+
+    // Merge current Cards with the ones in the supplied 
+    public void mergeCards(List<Card> incomingCards) {
+        //this.cards = incomingCards;
+        //update();
+    }
+
+    public void toggleDropDown() {
         isDroppedDown = !isDroppedDown;
         int i= 0;
-        for(Component c : this.getComponents())
-        {
+        for(Component c : this.getComponents()) {
             // Don't toggle first component
             if (i++ < 1) continue;
             c.setVisible(isDroppedDown);
         }
 
-        JDialog topFrame = (JDialog) SwingUtilities.windowForComponent(this);
+        JFrame topFrame = (JFrame) SwingUtilities.windowForComponent(this);
         topFrame.pack();
     }
 
-    public void updateTimes()
-    {
-        for(Component c : this.getComponents())
-        {
+    public void updateTimes() {
+        log.debug("updating times card about to iterate...");
+        for (Component c : this.getComponents()) {
+            log.debug("updating times card...");
             CardButton card = (CardButton)c;
-
             card.update();
         }
     }
 
-    private void addCardButton(final Card c, boolean bStartAsInvisible)
-    {
-        CardButton button = new CardButton(c);
-        button.setMargin(new Insets(0, 0, 0, 0));
 
-        button.addMouseListener(new MouseAdapter() {
-            public void mouseReleased(MouseEvent ev) {
-                if (!ev.isPopupTrigger()) {
-                    toggleDropDown();
-                }
-            }
-        });
-
-        button.setContentAreaFilled(false);
-        button.setFocusPainted(false);
-
-        button.setToolTipText(c.getName() + "\n" + c.getDesc());
-
-        // Contextual menu
-        JPopupMenu buttonPopUp = new JPopupMenu();
-
-        JMenu moveToListMenu = new JMenu("Move to ...");
-        for (org.trello4j.model.List listInBoard : listsInBoard) {
-
-            // dont move to the current list
-            if (c.getIdList().equals(listInBoard.getId())) {
-                continue;
-            }
-
-            JMenuItem menuForList = new JMenuItem(listInBoard.getName());
-            MoveToListAction f = new MoveToListAction(c, listInBoard.getId());
-            menuForList.addActionListener(f);
-            moveToListMenu.add(menuForList);
-        }
-
-        JMenuItem refreshMenu = new JMenuItem("Refresh");
-        refreshMenu.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent ev)
-            {
-                try
-                {
-                    TrelloClient.GetInstance().updateOnce();
-                }
-                catch(Exception ex)
-                {
-                    System.out.println(ex);
-                }
-            }
-        });
-
-        JMenuItem newCardMenu = new JMenuItem("New card");
-        newCardMenu.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent ev)
-            {
-                String newCardTitle = JOptionPane.showInputDialog("New card");
-                try
-                {
-                    TrelloClient.GetInstance().newCardToList(sListId, newCardTitle);
-                    TrelloClient.GetInstance().updateOnce();
-                }
-                catch(Exception ex)
-                {
-                    System.out.println(ex);
-                }
-            }
-        });
-
-        JMenuItem hideForAWhile = new JMenuItem("Hide 5min");
-        hideForAWhile.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e)
-            {
-                try
-                {
-                    TrelloClient.GetInstance().stopForAWhile();
-                }
-                catch(Exception ex)
-                {
-                    System.out.println(ex);
-                }
-            }
-        });
-
-        JMenuItem exitMenu = new JMenuItem("Exit");
-        exitMenu.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e)
-            {
-                System.exit(0);
-            }
-        });
-
-        JMenuItem archiveCardMenu = new JMenuItem("Archive card");
-        archiveCardMenu.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e)
-            {
-                int response = JOptionPane.showConfirmDialog(null,
-                    "Archive?", "Are you sure you want to archive " + c.getName(), JOptionPane.YES_NO_OPTION);
-
-                if (response != 0) // 0 means YES
-                {
-                    return;
-                }
-
-                try
-                {
-                    TrelloClient.GetInstance().archiveCard(c);
-                    TrelloClient.GetInstance().updateOnce();
-                }
-                catch(Exception ex)
-                {
-                    System.out.println(ex);
-                }
-            }
-        });
-
-        // Add menus
-        buttonPopUp.add(newCardMenu);
-        buttonPopUp.add(moveToListMenu);
-        buttonPopUp.add(archiveCardMenu);
-        buttonPopUp.addSeparator();
-        buttonPopUp.add(hideForAWhile);
-        buttonPopUp.add(refreshMenu);
-        buttonPopUp.add(exitMenu);
-        button.setComponentPopupMenu(buttonPopUp);
-
-        // Start as invisible
-        button.setVisible(!bStartAsInvisible);
-        this.add(button);
-    }
-
-    ListPanel(final String sListId, final List<Card> cards, List<org.trello4j.model.List> listsInBoard)
-    {
-        this.sListId = sListId;
-        this.cards = cards;
-        this.listsInBoard = listsInBoard;
-
-        int i = 0;
-        boolean bFirstCard = true;
-        for (Card c : cards)
-        {
-            if (bFirstCard)
-            {
-                bFirstCard = false;
-                addCardButton(c, /*bStartInvisible*/ false);
-            }
-            else
-            {
-                addCardButton(c, /*bStartInvisible*/ true);
-            }
-        }
-
-        this.setLayout(new InvisibleGridLayout(0,1));
-        this.setAlignmentY(Component.TOP_ALIGNMENT);
-        System.out.println("done adding cards to list");
-    }
 }
 
 class MoveToListAction implements ActionListener{
@@ -206,11 +103,11 @@ class MoveToListAction implements ActionListener{
 
     public void actionPerformed(ActionEvent ev) {
         try {
-            System.out.println("moving to " + sListId);
+            //log.info("moving to " + sListId);
             TrelloClient.GetInstance().moveCardToList(cCard, sListId);
             TrelloClient.GetInstance().updateOnce();
         }catch(Exception ex) {
-            System.out.println(ex);
+            //log.error(ex);
         }
     }
 }

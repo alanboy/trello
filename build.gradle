@@ -13,6 +13,8 @@ repositories {
 dependencies {
     compile ('org.trello4j:trello4j:1.0-SNAPSHOT', 'com.google.code.gson:gson:2.1')
     compile files("${System.properties['java.home']}\\lib\\jfxrt.jar")
+    compile 'org.apache.logging.log4j:log4j-api:2.0.2'
+    compile 'org.apache.logging.log4j:log4j-core:2.0.2'
 }
 
 sourceSets {

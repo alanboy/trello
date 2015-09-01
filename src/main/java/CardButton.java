@@ -1,36 +1,167 @@
 import javax.swing.*;
-import org.trello4j.model.Card;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
-class CardButton extends JButton
-{
+import org.trello4j.model.Card;
+import org.apache.logging.log4j.*;
+
+class CardButton extends JButton {
     private Card trelloCard;
     private final int MAX_CHARACTERS_IN_TITLE = 24;
     private final long creationTime;
+    Logger log;
+    ListPanel parentListPanel;
 
+    CardButton(Card c, ListPanel parentPanel) {
+//        super("hi");
+        this.trelloCard = c;
+        this.parentListPanel = parentPanel;
+        this.log = LogManager.getLogger();
 
-    CardButton(Card trelloCard)
-    {
-        this.trelloCard = trelloCard;
+        log.info("Creating CardButton for card id = "+ c.getId() +"");
+
+        this.setMargin(new Insets(0, 0, 0, 0));
+
+        this.addMouseListener(new MouseAdapter() {
+            public void mouseReleased(MouseEvent ev) {
+                if (!ev.isPopupTrigger()) {
+                    parentListPanel.toggleDropDown();
+                }
+            }
+        });
+
+        this.setContentAreaFilled(false);
+        this.setFocusPainted(false);
+        this.setToolTipText(c.getName() + "\n" + c.getDesc());
+
+        // Contextual menu
+        JPopupMenu buttonPopUp = new JPopupMenu();
+
+        JMenu moveToListMenu = new JMenu("Move to ...");
+        for (org.trello4j.model.List listInBoard : parentListPanel.getListsInBoard()) {
+
+            // dont move to the current list
+            if (c.getIdList().equals(listInBoard.getId())) {
+                continue;
+            }
+
+            JMenuItem menuForList = new JMenuItem(listInBoard.getName());
+            MoveToListAction f = new MoveToListAction(c, listInBoard.getId());
+            menuForList.addActionListener(f);
+            moveToListMenu.add(menuForList);
+        }
+
+        JMenuItem refreshMenu = new JMenuItem("Refresh");
+        refreshMenu.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent ev) {
+                try
+                {
+                    TrelloClient.GetInstance().updateOnce();
+                }
+                catch(Exception ex)
+                {
+                    log.info(ex);
+                }
+            }
+        });
+
+        JMenuItem newCardMenu = new JMenuItem("New card");
+        newCardMenu.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent ev) {
+                String newCardTitle = JOptionPane.showInputDialog("New card");
+                try {
+                    TrelloClient.GetInstance().newCardToList(parentListPanel.getListId(), newCardTitle);
+                    TrelloClient.GetInstance().updateOnce();
+                } catch(Exception ex) {
+                    log.error(ex);
+                }
+            }
+        });
+
+        JMenuItem hideForAWhile = new JMenuItem("Hide 5min");
+        hideForAWhile.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e)
+            {
+                try
+                {
+                    TrelloClient.GetInstance().stopForAWhile();
+                }
+                catch(Exception ex)
+                {
+                    log.info(ex);
+                }
+            }
+        });
+
+        JMenuItem exitMenu = new JMenuItem("Exit");
+        exitMenu.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e)
+            {
+                System.exit(0);
+            }
+        });
+
+        JMenuItem archiveCardMenu = new JMenuItem("Archive card");
+        archiveCardMenu.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e) {
+                int response = JOptionPane.showConfirmDialog(null,
+                    "Archive?", "Are you sure you want to archive " + trelloCard.getName(), JOptionPane.YES_NO_OPTION);
+
+                if (response != 0) { // 0 means YES
+                    return;
+                }
+
+                try {
+                    TrelloClient.GetInstance().archiveCard(trelloCard);
+                    TrelloClient.GetInstance().updateOnce();
+                } catch(Exception ex) {
+                    log.info(ex);
+                }
+            }
+        });
+
+        // Add menus
+        buttonPopUp.add(newCardMenu);
+        buttonPopUp.add(moveToListMenu);
+        buttonPopUp.add(archiveCardMenu);
+        buttonPopUp.addSeparator();
+        buttonPopUp.add(hideForAWhile);
+        buttonPopUp.add(refreshMenu);
+        buttonPopUp.add(exitMenu);
+        this.setComponentPopupMenu(buttonPopUp);
 
         // The first 8 character of the card are the unix timestamp of creation
-        creationTime = Long.parseLong(trelloCard.getId().substring(0,8), 16);
+        creationTime = Long.parseLong(this.trelloCard.getId().substring(0,8), 16);
 
         update();
     }
 
-    public long getCreationTime()
-    {
+    public Long getId() {
+        return trelloCard.getIdShort();
+    }
+
+    public long getCreationTime() {
         return creationTime;
     }
 
-    void update()
-    {
+    void update() {
+        log.debug("inside CardButton update");
+
         String title = trelloCard.getName();
 
-        if (title.length() > MAX_CHARACTERS_IN_TITLE)
-        {
-            title = title.substring(0, MAX_CHARACTERS_IN_TITLE) + "...";
-        }
+//        StackTraceElement[] cause = Thread.currentThread().getStackTrace();
+//        for (StackTraceElement f : cause)
+//        {
+//            System.out.print(f.getMethodName() + "->");
+//        }
+//        System.out.println();
+//
+//        if (title.length() > MAX_CHARACTERS_IN_TITLE) {
+//            title = title.substring(0, MAX_CHARACTERS_IN_TITLE) + "...";
+//        }
 
         long unixTime = System.currentTimeMillis() / 1000L;
 
