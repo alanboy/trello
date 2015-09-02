@@ -68,14 +68,12 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
 
         doWork();
 
-        for (int nApiCalls = 0; ;nApiCalls++)
-        {
+        for (int nApiCalls = 0; ;nApiCalls++) {
             Thread.sleep(ONE_SECOND * 2);
 
             secondsSinceUpdate++;
 
-            if (secondsSinceUpdate > UPDATE_INTERVAL)
-            {
+            if (secondsSinceUpdate > UPDATE_INTERVAL) {
                 doWork();
                 secondsSinceUpdate = 0;
             }
@@ -84,9 +82,8 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         }
 
         // unreachable code...
-        //return null;
+        // return null;
     }
-
 
     private void doWork() throws Exception {
         log.info(">>>>>>>>>>>>>>>>>>>>>>> Entering doWork()");
@@ -134,15 +131,12 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
     // *         Nothing has been refactore from here down
     // *************************************************************************
 
-    public static String getKey()
-    {
+    public static String getKey() {
         return API_KEY;
     }
 
-    public List<org.trello4j.model.List> getListsFromBoard(Board board) throws Exception
-    {
-        if (!isInitialized)
-        {
+    public List<org.trello4j.model.List> getListsFromBoard(Board board) throws Exception {
+        if (!isInitialized) {
             throw new Exception("Client has not been initialized.");
         }
 
@@ -151,85 +145,62 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         return ls;
     }
 
-    public List<Board> getMyBoards() throws Exception
-    {
-        if (!isInitialized)
-        {
+    public List<Board> getMyBoards() throws Exception {
+        if (!isInitialized) {
             throw new Exception("Client has not been initialized.");
         }
 
         List<Board> bs = trello4jClient.getBoardsByMember("my");
 
-        if (0 == bs.size())
-        {
+        if (0 == bs.size()) {
             log.info("you dont have access to any boards?");
         }
 
         return bs;
     }
 
-    public void stopForAWhile() throws Exception
-    {
+    public void stopForAWhile() throws Exception {
         UIServer.setVisible(false);
         Thread.sleep(FIVE_MINUTES);
         UIServer.setVisible(true);
     }
 
-    public void updateOnce() throws Exception
-    {
+    public void updateOnce() throws Exception {
         doWork();
     }
 
-    // Get all cards in list. Add them to UIServer.
-
-    public List<org.trello4j.model.List> getListsInBoard(String idBoard)
-    {
-        List<org.trello4j.model.List> l = trello4jClient.getListByBoard(idBoard, null);
-
-        return l;
+    public List<org.trello4j.model.List> getListsInBoard(String idBoard) {
+        return trello4jClient.getListByBoard(idBoard);
     }
 
-    public void archiveCard(Card c) // throws Exception
-    {
-        if (!isInitialized)
-        {
+    public void archiveCard(Card c) { // throws Exception
+        if (!isInitialized) {
            // throw new Exception("Client has not been initialized.");
            return;
         }
 
         trello4jClient.closeCard(c.getId());
-
     }
 
     // Look for a list that is called, "Done" and move cCard to that list
-    public void moveCardToList(Card cCard, String sListId) // throws Exception
-    {
-        if (!isInitialized)
-        {
+    public void moveCardToList(Card cCard, String sListId) { // throws Exception
+        if (!isInitialized) {
            // throw new Exception("Client has not been initialized.");
            return;
         }
 
-        // search for card called "done"
-
         trello4jClient.moveCard(cCard.getId(), sListId);
-        log.info(
-                "Move card " + cCard.getId() + " to list " + sListId
-               );
-
+        log.info("Move card " + cCard.getId() + " to list " + sListId);
     }
 
-    public void newCardToList(String sListId, String newCardTitle) throws Exception
-    {
-        if (!isInitialized)
-        {
+    public void newCardToList(String sListId, String newCardTitle) throws Exception {
+        if (!isInitialized) {
             throw new Exception("Client has not been initialized.");
         }
 
         Card c = trello4jClient.createCard(sListId, newCardTitle, null);
-        log.info(
-                "New card in list " + sListId
-               + " " + ((null == c) ? "Failed." : "Succeded"));
+        log.info("New card in list " + sListId
+                   + " " + ((null == c) ? "Failed." : "Succeded"));
 
     }
 
@@ -294,18 +265,15 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         return true;
     }
 
-    public boolean loadLists()
-    {
-        if (!isInitialized)
-        {
+    public boolean loadLists() {
+        if (!isInitialized) {
             return false;
         }
 
         // Search for at lest one list
         configListArray = jObject.getAsJsonArray("lists");
 
-        if (null == configListArray || configListArray.size() == 0)
-        {
+        if (null == configListArray || configListArray.size() == 0) {
             log.info("config.json is missing at least 1 list");
             return false;
         }

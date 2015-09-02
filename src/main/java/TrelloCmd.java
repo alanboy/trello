@@ -74,6 +74,9 @@ public class TrelloCmd {
 
         log.info ("/-------------------------------------------------\\");
         log.info ("|                Trello started                   |");
+        log.info ("|                                                 |");
+        log.info ("| Built: " + About.BuiltByUser + "(" + About.BuiltByMachine + ")");
+        log.info ("|        " + About.Date + " " + About.Time + " ");
         log.info ("\\-------------------------------------------------/");
         tClient = TrelloClient.GetInstance();
 
