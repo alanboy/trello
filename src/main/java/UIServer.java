@@ -106,7 +106,7 @@ public class UIServer {
 
     public static void updateTimes() {
         log.debug("updating times...");
-        for(Component c : frame.getRootPane().getComponents()) {
+        for(Component c : frame.getContentPane().getComponents()) {
 
             if (c instanceof ListPanel) {
                 log.debug("updating times c...");
