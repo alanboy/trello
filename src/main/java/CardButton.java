@@ -148,7 +148,6 @@ class CardButton extends JButton {
     }
 
     void update() {
-        log.debug("inside CardButton update");
 
         String title = trelloCard.getName();
 

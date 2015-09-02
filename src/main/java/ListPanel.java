@@ -25,14 +25,14 @@ class ListPanel extends JPanel {
         log.info("Creating new ListPanel:" + sListId);
 
         update();
-
-        log.info("Done constructing a ListPanel for list : " + sListId);
     }
 
     private void update() {
-        log.info("Updating list cards/UI");
 
-        //this.removeAll();
+        log.debug("Updating list cards/UI");
+
+        // @TODO: Actually merge cards
+        this.removeAll();
 
         boolean bFirstCard = true;
         for (Card c : cards) {
@@ -63,8 +63,11 @@ class ListPanel extends JPanel {
 
     // Merge current Cards with the ones in the supplied 
     public void mergeCards(List<Card> incomingCards) {
-        //this.cards = incomingCards;
-        //update();
+        log.debug("Merging cards into existing list");
+
+        // @TODO: Actually merge cards
+        this.cards = incomingCards;
+        update();
     }
 
     public void toggleDropDown() {
@@ -81,15 +84,11 @@ class ListPanel extends JPanel {
     }
 
     public void updateTimes() {
-        log.debug("updating times card about to iterate...");
         for (Component c : this.getComponents()) {
-            log.debug("updating times card...");
             CardButton card = (CardButton)c;
             card.update();
         }
     }
-
-
 }
 
 class MoveToListAction implements ActionListener{
@@ -103,7 +102,6 @@ class MoveToListAction implements ActionListener{
 
     public void actionPerformed(ActionEvent ev) {
         try {
-            //log.info("moving to " + sListId);
             TrelloClient.GetInstance().moveCardToList(cCard, sListId);
             TrelloClient.GetInstance().updateOnce();
         }catch(Exception ex) {

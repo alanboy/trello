@@ -93,26 +93,25 @@ public class UIServer {
         }
     }
 
-    // This guy introduced the whole thread problem!!!!!
     public static ListPanel getList(String sListId) {
-        //for (Component c : frame.getComponents()) {
-        //    ListPanel lp = ((ListPanel)c);
-        //    if (lp.getListId().equals(sListId)) {
-        //        return lp;
-        //    }
-        //}
+        for(Component c : frame.getContentPane().getComponents()) {
+            if (c instanceof ListPanel) {
+                ListPanel lp = ((ListPanel)c);
+                if (lp.getListId().equals(sListId)) {
+                    return lp;
+                }
+            }
+        }
         return null;
     }
 
     public static void updateTimes() {
-        log.debug("updating times...");
         for(Component c : frame.getContentPane().getComponents()) {
-
             if (c instanceof ListPanel) {
-                log.debug("updating times c...");
                 ((ListPanel)c).updateTimes();
             }
         }
+
         frame.pack();
         frame.setVisible(true);
     }
