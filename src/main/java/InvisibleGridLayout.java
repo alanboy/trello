@@ -3,15 +3,14 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-public class InvisibleGridLayout implements LayoutManager, java.io.Serializable
-{
+public class InvisibleGridLayout implements LayoutManager, java.io.Serializable {
     int hgap;
     int vgap;
     int rows;
     int cols;
 
     public InvisibleGridLayout() {
-    this(1, 0, 0, 0);
+        this(1, 0, 0, 0);
     }
 
     public InvisibleGridLayout(int rows, int cols) {

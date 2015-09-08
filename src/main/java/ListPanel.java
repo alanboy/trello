@@ -28,7 +28,6 @@ class ListPanel extends JPanel {
     }
 
     private void update() {
-
         log.debug("Updating list cards/UI");
 
         // @TODO: Actually merge cards

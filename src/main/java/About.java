@@ -1,6 +1,6 @@
 public class About {  
     static final String BuiltByMachine = "alanboy-dev"; 
     static final String BuiltByUser = "alan"; 
-    static final String Date = "02:23 AM"; 
-    static final String Time = "Wed 09/02/2015 "; 
+    static final String Date = "03:11 PM"; 
+    static final String Time = "Tue 09/08/2015 "; 
 } 

@@ -29,11 +29,10 @@ public class UIServer {
     // *************************************************************************
     public static void createAndShowGUI() {
 
-
         log.debug("Created GUI on EDT? "+
                 SwingUtilities.isEventDispatchThread());
 
-        frame = new JFrame("Swing Paint Demo");
+        frame = new JFrame("");
 
         FlowLayout experimentLayout = new java.awt.FlowLayout();
         frame.setLayout(experimentLayout);
@@ -46,8 +45,8 @@ public class UIServer {
         frame.setAlwaysOnTop(true);
         frame.setOpacity(0.9f);
 
-        JButton jb = new JButton("..");
-        frame.add(jb);
+        JButton mainMenu = new MainMenuButton();
+        frame.add(mainMenu);
 
         // If you dont do this, the main thread will die and so will
         // the entire application.
@@ -59,12 +58,13 @@ public class UIServer {
         try {
             // Start TrelloClient WorkerThread, this call is non-blocking
             TrelloClient.GetInstance().execute();
+
         } catch (Throwable t) {
             log.info(t);
             //System.exit(1);
         }
 
-        log.info("createAndShowGUI thread ends");
+        log.debug("createAndShowGUI thread ends");
     }
 
     public static void addList(
@@ -116,10 +116,11 @@ public class UIServer {
         frame.setVisible(true);
     }
 
+    public static void moveWindowTo(Point position) {
+        log.info("Moving window to ... " + (int)position.getX() +","+(int)position.getY());
+        frame.setLocation((int)position.getX(), (int)position.getY());
+    }
 
-    // *************************************************************************
-    // *         Nothing has been refactore from here down
-    // *************************************************************************
     public static void clearLists() {
         frame.getContentPane().removeAll();
     }

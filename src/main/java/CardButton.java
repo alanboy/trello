@@ -16,7 +16,6 @@ class CardButton extends JButton {
     ListPanel parentListPanel;
 
     CardButton(Card c, ListPanel parentPanel) {
-//        super("hi");
         this.trelloCard = c;
         this.parentListPanel = parentPanel;
         this.log = LogManager.getLogger();
