@@ -90,36 +90,34 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
 
         // Iterate lists in configuration file
         for (int nCurrentList = 0; nCurrentList < configListArray.size(); nCurrentList++) {
-            List<Card> bs2 = null;
+            List<Card> listOfCardsInList = null;
             String listId = configListArray.get(nCurrentList).toString().replace('"', ' ').trim();
 
             try {
                 log.info("getCardsByList() API CALL ...");
-                bs2 = trello4jClient.getCardsByList(listId);
+                listOfCardsInList = trello4jClient.getCardsByList(listId);
             } catch(Exception e) {
                 log.info("[apicall] getCardsByList [FAILED]");
                 log.info(e);
             }
 
-            if (null == bs2) {
+            if (null == listOfCardsInList) {
                 log.info("list `" + listId + "` does not exist or is invalid." );
-                throw new Exception();
-            }
-
-            if (0 == bs2.size()) {
-                log.info("list `" + listId + "` has no cards!" );
                 throw new Exception();
             }
 
             String idBoard;
             List<org.trello4j.model.List> listsInBoard = null;
 
-            if ( 0 != bs2.size()) {
-                idBoard = bs2.get(0).getIdBoard();
+            if (0 != listOfCardsInList.size()) {
+                // @TODO Support 0 sized lists
+                idBoard = listOfCardsInList.get(0).getIdBoard();
                 listsInBoard = getListsInBoard(idBoard);
+            } else {
+                log.info("List `" + listId + "` has no cards!" );
             }
 
-            UIServer.addList(listId, bs2, listsInBoard);
+            UIServer.addList(listId, listOfCardsInList, listsInBoard);
         }
 
         UIServer.updateTimes();
