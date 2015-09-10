@@ -4,9 +4,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
-import org.trello4j.model.Card;
 import org.apache.logging.log4j.*;
+
+// For openning the desktop browser
+import java.awt.Desktop;
+import java.net.URI;
+import java.net.*;
+import java.io.IOException;
+
+// Trello4j stuff
+import org.trello4j.model.Card;
 
 class CardButton extends JButton {
     private Card trelloCard;
@@ -62,7 +69,7 @@ class CardButton extends JButton {
                 }
                 catch(Exception ex)
                 {
-                    log.info(ex);
+                    log.error(ex);
                 }
             }
         });
@@ -80,16 +87,27 @@ class CardButton extends JButton {
             }
         });
 
+        JMenuItem openBoardInBrowser = new JMenuItem("Open in browser");
+        openBoardInBrowser.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent ev) {
+                if(Desktop.isDesktopSupported()) {
+                    try {
+                        Desktop.getDesktop().browse(new URI("https://trello.com/c/"+ trelloCard.getId()));
+                    } catch (URISyntaxException e) {
+                        log.error(e);
+                    } catch (IOException ioe) {
+                        log.error(ioe);
+                    }
+                }
+            }
+        });
+
         JMenuItem hideForAWhile = new JMenuItem("Hide 5min");
         hideForAWhile.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e)
-            {
-                try
-                {
+            public void actionPerformed(ActionEvent e) {
+                try {
                     TrelloClient.GetInstance().stopForAWhile();
-                }
-                catch(Exception ex)
-                {
+                } catch(Exception ex) {
                     log.info(ex);
                 }
             }
@@ -117,13 +135,14 @@ class CardButton extends JButton {
                     TrelloClient.GetInstance().archiveCard(trelloCard);
                     TrelloClient.GetInstance().updateOnce();
                 } catch(Exception ex) {
-                    log.info(ex);
+                    log.error(ex);
                 }
             }
         });
 
         // Add menus
         buttonPopUp.add(newCardMenu);
+        buttonPopUp.add(openBoardInBrowser);
         buttonPopUp.add(moveToListMenu);
         buttonPopUp.add(archiveCardMenu);
         buttonPopUp.addSeparator();
@@ -174,12 +193,9 @@ class CardButton extends JButton {
         String titleColor = "061842";
         String timeColor = "2E4172";
 
-        if (days > 5)
-        {
+        if (days > 5) {
             timeColor = "82121D";
-        }
-        else if (days > 2)
-        {
+        } else if (days > 2) {
             timeColor = "A2A838";
         }
 

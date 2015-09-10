@@ -31,10 +31,10 @@ class MainMenuButton extends JButton {
             }
 
             public void mousePressed(MouseEvent ev) {
-                if (!ev.isPopupTrigger()) {
-                    Point currPosition = MouseInfo.getPointerInfo().getLocation();
-                    UIServer.moveWindowTo(currPosition);
-                }
+                //if (!ev.isPopupTrigger()) {
+                //    Point currPosition = MouseInfo.getPointerInfo().getLocation();
+                //    UIServer.moveWindowTo(currPosition);
+                //}
             }
         });
 
@@ -44,6 +44,25 @@ class MainMenuButton extends JButton {
         JMenuItem refreshMenu = new JMenuItem("Refresh");
         refreshMenu.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent ev) {
+
+            }
+        });
+
+        JMenuItem openBugInGithub = new JMenuItem("Submit bug");
+        refreshMenu.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent ev) {
+                // include logs
+                // open github bug
+            }
+        });
+
+        JMenuItem checkForUpdates = new JMenuItem("Check for updates");
+        refreshMenu.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent ev) {
+                // TrelloClient to check for updateded binary in github
+                // https://raw.githubusercontent.com/alanboy/trello/master/dist/latest/version.json
+                // Download & patch
+                // Restart this thing
             }
         });
 
@@ -55,8 +74,9 @@ class MainMenuButton extends JButton {
         });
 
         // Add menus
-        buttonPopUp.addSeparator();
         buttonPopUp.add(refreshMenu);
+        buttonPopUp.add(openBugInGithub);
+        buttonPopUp.add(checkForUpdates);
         buttonPopUp.add(exitMenu);
         this.setComponentPopupMenu(buttonPopUp);
 

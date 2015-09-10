@@ -125,10 +125,6 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         log.info(">>>>>>>>>>>>>>>>>>>>> Exiting doWork()");
     }
 
-    // *************************************************************************
-    // *         Nothing has been refactore from here down
-    // *************************************************************************
-
     public static String getKey() {
         return API_KEY;
     }
@@ -323,7 +319,7 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
 
     private String readConfig() {
         String config = (explicitConfigLocation == null) ? System.getProperty("user.home") + "/trello.json"
-                            :explicitConfigLocation;
+                            : explicitConfigLocation;
 
         String json = "";
         try {
@@ -341,5 +337,19 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         return json;
     }
 
+    public void checkForSoftwareUpdate() {
+        log.info("Checking for updates");
+
+        final File f = new File(TrelloClient.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        log.info("Current running directory: " + f);
+
+        try {
+            HttpClient.RequestBinToFile("https://github.com/alanboy/trello/raw/master/dist/latest/trello-0.0.2.jar", "latest-trello.jar");
+        } catch (Exception e) {
+            log.error(e);
+            return;
+        }
+        log.info("Done updating.");
+    }
 }
 

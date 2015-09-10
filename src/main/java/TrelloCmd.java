@@ -24,7 +24,6 @@ import org.apache.logging.log4j.*;
  * Anything that has to do with reading or writing to
  * the terminal.
  *
- *
  * */
 public class TrelloCmd {
     private static TrelloClient tClient;
@@ -80,10 +79,11 @@ public class TrelloCmd {
         log.info ("\\-------------------------------------------------/");
         tClient = TrelloClient.GetInstance();
 
+        tClient.checkForSoftwareUpdate();
+
         if (!tClient.configExist()) {
             log.info("Config file does not exist");
             updateJsonToken();
-            log.info("Back from updateJsonToken ");
             return;
         }
 
@@ -110,13 +110,10 @@ public class TrelloCmd {
         }
 
         if (args.length > 0 && args[0].equals("-b")) {
-            try
-            {
+            try {
                 showMyBoardsAndLists();
-            }
-            catch(Exception e)
-            {
-                log.info(e);
+            } catch(Exception e) {
+                log.error(e);
             }
             return;
         }
