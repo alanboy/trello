@@ -78,7 +78,7 @@ class ListPanel extends JPanel {
             c.setVisible(isDroppedDown);
         }
 
-        JFrame topFrame = (JFrame) SwingUtilities.windowForComponent(this);
+        JDialog topFrame = (JDialog)SwingUtilities.windowForComponent(this);
         topFrame.pack();
     }
 

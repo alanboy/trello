@@ -17,7 +17,7 @@ import java.awt.*;
 import org.apache.logging.log4j.*;
 
 public class UIServer {
-    static JFrame frame;
+    static JDialog frame;
     static Logger log;
 
     static {
@@ -32,12 +32,10 @@ public class UIServer {
         log.debug("Created GUI on EDT? "+
                 SwingUtilities.isEventDispatchThread());
 
-        frame = new JFrame("");
+        frame = new JDialog();
 
         FlowLayout experimentLayout = new java.awt.FlowLayout();
         frame.setLayout(experimentLayout);
-
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         frame.setLocation(200, System.getProperty("os.name").toLowerCase().startsWith("mac") ? 25 : 0 );
         frame.setResizable(true);
