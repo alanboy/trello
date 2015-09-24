@@ -63,12 +63,9 @@ class CardButton extends JButton {
         JMenuItem refreshMenu = new JMenuItem("Refresh");
         refreshMenu.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent ev) {
-                try
-                {
+                try {
                     TrelloClient.GetInstance().updateOnce();
-                }
-                catch(Exception ex)
-                {
+                } catch(Exception ex) {
                     log.error(ex);
                 }
             }
@@ -167,18 +164,8 @@ class CardButton extends JButton {
 
     void update() {
 
+        String shortTitle;
         String title = trelloCard.getName();
-
-//        StackTraceElement[] cause = Thread.currentThread().getStackTrace();
-//        for (StackTraceElement f : cause)
-//        {
-//            System.out.print(f.getMethodName() + "->");
-//        }
-//        System.out.println();
-//
-//        if (title.length() > MAX_CHARACTERS_IN_TITLE) {
-//            title = title.substring(0, MAX_CHARACTERS_IN_TITLE) + "...";
-//        }
 
         long unixTime = System.currentTimeMillis() / 1000L;
 
@@ -199,7 +186,13 @@ class CardButton extends JButton {
             timeColor = "A2A838";
         }
 
-        String html =  "<html><font color=\"" + titleColor + "\">" + title + "</font>"
+        if (title.length() > 20) {
+            shortTitle = title.substring(0, 20);
+        } else {
+            shortTitle = title;
+        }
+
+        String html =  "<html><font color=\"" + titleColor + "\">" + shortTitle + "</font>"
             +  " <font color=\"" + timeColor + "\">" 
             + (days > 0 ? days + "d " : "")
             + (hours < 10 ? "0" : "") + hours + ":"
