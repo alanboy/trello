@@ -79,10 +79,27 @@ public class TrelloCmd {
         log.info ("\\-------------------------------------------------/");
         tClient = TrelloClient.GetInstance();
 
-        tClient.checkForSoftwareUpdate();
+        boolean bDontUpdate = false;
+        for (String arg : args) {
+            if (arg.equals("-noupdate")) {
+                bDontUpdate = true;
+                break;
+            }
+        }
+
+        if (!bDontUpdate) {
+            tClient.checkForSoftwareUpdate();
+        }
 
         if (!tClient.configExist()) {
             log.info("Config file does not exist");
+
+            // Create new empty file now.
+            if (!tClient.newConfigFile()) {
+                log.error("Could not create config file, ill just exit.");
+                return;
+            }
+
             updateJsonToken();
             return;
         }
@@ -105,7 +122,8 @@ public class TrelloCmd {
             log.info(
                     "trello client 0.1" + NEW_LINE
                     + "-? this help " + NEW_LINE
-                    + "-b show boards i have access to" + NEW_LINE );
+                    + "-noupdate don't update" + NEW_LINE
+                    + "-b show boards I have access to" + NEW_LINE );
             return;
         }
 

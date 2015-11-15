@@ -276,12 +276,35 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
     }
 
     public boolean configExist() {
-        String config = (explicitConfigLocation == null) ? System.getProperty("user.home") + "/trello.json"
-                            :explicitConfigLocation;
+        String config = (explicitConfigLocation == null) ? 
+                            System.getProperty("user.home") + java.io.File.separator + "trello.json"
+                            : explicitConfigLocation;
 
-        log.info("Found configuration at:" + config);
+        boolean bFoundConfig = new File(config).isFile();
 
-        return (new File(config).isFile());
+        log.info("Configuration JSON"
+                    + (bFoundConfig ? "" : " NOT ") 
+                    +"found at : " + config);
+
+        return bFoundConfig;
+    }
+
+    public boolean newConfigFile() {
+        if (!configExist()) {
+            try {
+                PrintWriter pWriter = new PrintWriter(System.getProperty("user.home") + java.io.File.separator + "trello.json");
+                pWriter.write("{}");
+                pWriter.flush();
+                pWriter.close();
+                
+                log.info("Created new config file.");
+
+            } catch (IOException ioe) {
+                log.error("Unable to create new config file: " + ioe);
+                return false;
+            }
+        }
+        return true;
     }
 
     public boolean writeTokenToConfig(String token) {
@@ -338,18 +361,22 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
     }
 
     public void checkForSoftwareUpdate() {
-        log.info("Checking for updates");
+ 
 
         final File f = new File(TrelloClient.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        final String url = "https://github.com/alanboy/trello/raw/master/dist/latest/trello-0.0.2.jar";
+
         log.info("Current running directory: " + f);
+        log.info("Checking for updates in " + url);
 
         try {
-            HttpClient.RequestBinToFile("https://github.com/alanboy/trello/raw/master/dist/latest/trello-0.0.2.jar", "latest-trello.jar");
+            HttpClient.RequestBinToFile(url, "latest-trello.jar");
         } catch (Exception e) {
-            log.error(e);
+            log.error("Unable to download new version:" + e);
             return;
         }
-        log.info("Done updating.");
+
+        log.info("Update successful, saved to latest-trello.jar.");
     }
 }
 
