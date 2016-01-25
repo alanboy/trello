@@ -57,9 +57,9 @@ public class TrelloCmd {
     // *************************************************************************
     private static void showMyBoardsAndLists() throws Exception {
         for (Board b : tClient.getMyBoards()) {
-            log.info("Board: " + b.getName() + " - " + b.getId());
+            System.out.println("Board: " + b.getName() + " - " + b.getId());
             for (org.trello4j.model.List l : tClient.getListsFromBoard(b)) {
-                log.info("    List: " + l.getName() + " - " + l.getId());
+                System.out.println("    List: " + l.getName() + " - " + l.getId());
             }
         }
     }
@@ -72,10 +72,10 @@ public class TrelloCmd {
         log = LogManager.getLogger();
 
         log.info ("/-------------------------------------------------\\");
-        log.info ("|                Trello started                   |");
+        log.info ("|        Trello version " + About.Version + " started      |");
         log.info ("|                                                 |");
         log.info ("| Built: " + About.BuiltByUser + "(" + About.BuiltByMachine + ")");
-        log.info ("|        " + About.Date + " " + About.Time + " ");
+        log.info ("|        " + About.DateTime + " ");
         log.info ("\\-------------------------------------------------/");
         tClient = TrelloClient.GetInstance();
 
@@ -88,7 +88,7 @@ public class TrelloCmd {
         }
 
         if (!bDontUpdate) {
-            tClient.checkForSoftwareUpdate();
+            //tClient.checkForSoftwareUpdate();
         }
 
         if (!tClient.configExist()) {
@@ -119,11 +119,12 @@ public class TrelloCmd {
 
         if (args.length > 0 && args[0].equals("-?")) {
             String NEW_LINE = System.getProperty("line.separator");
-            log.info(
+            System.out.println(
                     "trello client 0.1" + NEW_LINE
                     + "-? this help " + NEW_LINE
                     + "-noupdate don't update" + NEW_LINE
-                    + "-b show boards I have access to" + NEW_LINE );
+                    + "-b show boards I have access to" + NEW_LINE 
+                    + "-c <config> use this config file" + NEW_LINE );
             return;
         }
 

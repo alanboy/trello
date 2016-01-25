@@ -361,16 +361,19 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
     }
 
     public void checkForSoftwareUpdate() {
- 
 
-        final File f = new File(TrelloClient.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-        final String url = "https://github.com/alanboy/trello/raw/master/dist/latest/trello-0.0.2.jar";
+        final String versionUrl = "https://github.com/alanboy/trello/raw/master/dist/latest/version.txt";
+        final File runningBinPath = new File(TrelloClient.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        final String binUrl = "https://github.com/alanboy/trello/raw/master/dist/latest/trello-0.0.2.jar";
 
-        log.info("Current running directory: " + f);
-        log.info("Checking for updates in " + url);
+        
+        // Check for version.txt and compare it to my known version.
+
+        log.info("Current running directory: " + runningBinPath);
+        log.info("Checking for updates in " + binUrl);
 
         try {
-            HttpClient.RequestBinToFile(url, "latest-trello.jar");
+             HttpClient.RequestBinToFile(binUrl, "latest-trello.jar");
         } catch (Exception e) {
             log.error("Unable to download new version:" + e);
             return;

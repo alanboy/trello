@@ -1,7 +1,9 @@
 apply plugin: "java"
 apply plugin:'application'
 
-version = '0.0.2'
+def MAJOR_VERSION = 0
+def MINOR_VERSION = 3
+mainClassName = "TrelloCmd"
 
 repositories {
     mavenCentral()
@@ -17,18 +19,63 @@ dependencies {
     compile 'org.apache.logging.log4j:log4j-core:2.0.2'
 }
 
+clean {
+  delete fileTree(dir: 'dist\\latest\\')
+  delete 'version.txt'
+}
+
+//# ####################################################################
+//# Do  First
+//# ####################################################################
+task writeVersionData {
+    def localMachine = java.net.InetAddress.getLocalHost();
+    def timeStamp = new java.text.SimpleDateFormat("MM-dd-yyyy HH:mm:ss").format(Calendar.getInstance().getTime())
+    def lowVersion = new java.text.SimpleDateFormat("YYD").format(Calendar.getInstance().getTime())
+
+    version = MAJOR_VERSION + '.' + MINOR_VERSION + '.' + lowVersion
+
+    def AboutJava = new File("src\\main\\java\\About.java")
+    AboutJava.text = "/* Auto generated code, your changes will be overwritten when built by gradle */\n" +
+      "public class About { \n" +
+      "    static final String BuiltByMachine = \"" + localMachine.getHostName() + "\"; \n" +
+      "    static final String BuiltByUser = \"" + System.getProperty("user.name") + "\"; \n" +
+      "    static final String DateTime = \"" + timeStamp + "\"; \n" +
+      "    static final String Version = \"" + version + "\"; \n" +
+      "}\n"
+
+    def VersionTxt = new File("version.txt")
+    VersionTxt.text = version.toString()
+    
+}
+
+jar.doFirst {
+    tasks.writeVersionData.execute()
+}
+
+//# ####################################################################
+//# Compile
+//# ####################################################################
+
 sourceSets {
     main.resources { exclude 'config.json' }
 }
 
 jar {
+    println "##########################"
+    println "Building version :  " + version
+    println "##########################"
+
     manifest.attributes 'Main-Class' : 'TrelloCmd',
         'Implementation-Version': version,
-        'Implementation-title': 'Cliente Trello',
+        'Implementation-title': 'Trello Client',
         'Class-Path': configurations.compile.collect { 'lib/' + it.getName() }.join(' ')
 }
 
-task copyLibs(type: Copy){
+//# ####################################################################
+//# Do  Last
+//# ####################################################################
+
+task copyLibs(type: Copy) {
     from configurations.compile
     into 'build/libs/lib'
 }
@@ -43,5 +90,21 @@ jar.doLast {
     tasks.copyResources.execute()
 }
 
-mainClassName = "TrelloCmd"
+//# ####################################################################
+//# Publishing
+//# ####################################################################
+
+task copyBins(type: Copy) {
+    from 'build/libs'
+    into 'dist/latest'
+}
+
+task publish() {
+    tasks.copyBins.execute()
+
+    file("build/libs/trello-" + version + ".jar").renameTo(file("build/libs/trello-latest.jar"))
+    delete "build/libs/trello-" + version + ".jar"
+
+    file("version.txt").renameTo(file("build/libs/version.txt"))
+}
 
