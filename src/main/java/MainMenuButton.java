@@ -41,15 +41,8 @@ class MainMenuButton extends JButton {
         // Contextual menu
         JPopupMenu buttonPopUp = new JPopupMenu();
 
-        JMenuItem refreshMenu = new JMenuItem("Refresh");
-        refreshMenu.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent ev) {
-
-            }
-        });
-
         JMenuItem openBugInGithub = new JMenuItem("Submit bug");
-        refreshMenu.addActionListener(new ActionListener(){
+        openBugInGithub.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent ev) {
                 // include logs
                 // open github bug
@@ -57,12 +50,19 @@ class MainMenuButton extends JButton {
         });
 
         JMenuItem checkForUpdates = new JMenuItem("Check for updates");
-        refreshMenu.addActionListener(new ActionListener(){
+        checkForUpdates.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent ev) {
                 // TrelloClient to check for updateded binary in github
                 // https://raw.githubusercontent.com/alanboy/trello/master/dist/latest/version.json
                 // Download & patch
                 // Restart this thing
+            }
+        });
+
+        JMenuItem openConfiguration = new JMenuItem("Configuration...");
+        openConfiguration.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent ev) {
+                new TrelloConfigurationWindow();
             }
         });
 
@@ -74,7 +74,7 @@ class MainMenuButton extends JButton {
         });
 
         // Add menus
-        buttonPopUp.add(refreshMenu);
+        buttonPopUp.add(openConfiguration);
         buttonPopUp.add(openBugInGithub);
         buttonPopUp.add(checkForUpdates);
         buttonPopUp.add(exitMenu);

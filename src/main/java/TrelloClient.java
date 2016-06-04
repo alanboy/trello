@@ -296,7 +296,7 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
                 pWriter.write("{}");
                 pWriter.flush();
                 pWriter.close();
-                
+
                 log.info("Created new config file.");
 
             } catch (IOException ioe) {
@@ -304,6 +304,107 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
                 return false;
             }
         }
+        return true;
+    }
+
+    public String getListsInConfig() {
+
+        String output = "";
+        // Iterate lists in configuration file
+        for (int nCurrentList = 0; nCurrentList < configListArray.size(); nCurrentList++) {
+            String listId = configListArray.get(nCurrentList).toString().replace('"', ' ').trim();
+            output += listId + ";";
+
+        }
+        return output;
+    }
+
+    public boolean removeListFromConfig(String listId) {
+
+        log.info("Removing list "+listId+" from configuration file");
+
+        if (!configExist()) {
+            log.error("Config file does not exist");
+            return false;
+        }
+
+        JsonElement jElement = new JsonParser().parse(readConfig());
+
+        JsonObject jObject = jElement.getAsJsonObject();
+
+        JsonArray configListArray = jObject.getAsJsonArray("lists");
+
+        if (configListArray == null) {
+            configListArray = new JsonArray();
+        }
+
+        JsonPrimitive toDelete = new JsonPrimitive(listId);
+
+        int i = 0;
+        for (JsonElement el : configListArray) {
+            if (el.equals(toDelete)) {
+                configListArray.remove(i);
+            } else {
+                i++;
+            }
+        }
+
+        jObject.add("lists", configListArray);
+
+        String explicitConfigLocation = null;
+        String configPath = (explicitConfigLocation == null) ? System.getProperty("user.home") + "/trello.json"
+                            :explicitConfigLocation;
+
+        try {
+            PrintWriter pw = new PrintWriter(configPath);
+            pw.println(jObject.toString());
+            pw.flush();
+            pw.close();
+        } catch (FileNotFoundException fnfe) {
+            log.error("Failed to write" + fnfe);
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean addListToConfig(String listId) {
+
+        log.info("Writing list to configuration file");
+
+        if (!configExist()) {
+            log.error("Config file does not exist");
+            return false;
+        }
+
+        JsonElement jElement = new JsonParser().parse(readConfig());
+
+        JsonObject jObject = jElement.getAsJsonObject();
+
+        JsonArray configListArray = jObject.getAsJsonArray("lists");
+
+        if (configListArray == null) {
+            configListArray = new JsonArray();
+        }
+
+        configListArray.add(new JsonPrimitive(listId));
+
+        jObject.add("lists", configListArray);
+
+        String explicitConfigLocation = null;
+        String configPath = (explicitConfigLocation == null) ? System.getProperty("user.home") + "/trello.json"
+                            :explicitConfigLocation;
+
+        try {
+            PrintWriter pw = new PrintWriter(configPath);
+            pw.println(jObject.toString());
+            pw.flush();
+            pw.close();
+        } catch (FileNotFoundException fnfe) {
+            log.error("Failed to write" + fnfe);
+            return false;
+        }
+
         return true;
     }
 
@@ -366,7 +467,7 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         final File runningBinPath = new File(TrelloClient.class.getProtectionDomain().getCodeSource().getLocation().getPath());
         final String binUrl = "https://github.com/alanboy/trello/raw/master/dist/latest/trello-0.0.2.jar";
 
-        
+
         // Check for version.txt and compare it to my known version.
 
         log.info("Current running directory: " + runningBinPath);

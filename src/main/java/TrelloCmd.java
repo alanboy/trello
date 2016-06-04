@@ -1,24 +1,21 @@
 import com.google.gson.*;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.*;
+import java.net.*;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.*;
-
-import java.awt.Desktop;
-import java.net.URI;
-import java.net.*;
-
+import org.apache.logging.log4j.*;
 import org.trello4j.*;
 import org.trello4j.model.*;
-
-import org.apache.logging.log4j.*;
 
 /**
  * Anything that has to do with reading or writing to
@@ -140,8 +137,8 @@ public class TrelloCmd {
         boolean configHasLists = tClient.loadLists();
 
         if (!configHasLists) {
-            JOptionPane.showMessageDialog(null, "you dont have any lists specified in your config. run again with -b option", "No lists", JOptionPane.ERROR_MESSAGE);
-            return;
+            new TrelloConfigurationWindow();
+            //return;
         }
 
         // Start UI

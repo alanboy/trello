@@ -34,7 +34,7 @@ public class UIServer {
 
         frame = new JDialog();
 
-        FlowLayout experimentLayout = new java.awt.FlowLayout();
+        FlowLayout experimentLayout = new FlowLayout();
         frame.setLayout(experimentLayout);
 
         frame.setLocation(200, System.getProperty("os.name").toLowerCase().startsWith("mac") ? 25 : 0 );
@@ -42,7 +42,7 @@ public class UIServer {
         frame.setUndecorated(true);
         frame.setAlwaysOnTop(true);
         frame.setOpacity(0.9f);
-
+        frame.setFocusableWindowState(false);
         JButton mainMenu = new MainMenuButton();
         frame.add(mainMenu);
 
