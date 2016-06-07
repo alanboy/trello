@@ -14,14 +14,10 @@ repositories {
 
 dependencies {
     compile ('org.trello4j:trello4j:1.0-SNAPSHOT', 'com.google.code.gson:gson:2.6')
-    compile files("${System.properties['java.home']}\\lib\\jfxrt.jar")
     compile 'org.apache.logging.log4j:log4j-api:2.0.2'
     compile 'org.apache.logging.log4j:log4j-core:2.0.2'
-}
-
-clean {
-  delete fileTree(dir: 'dist\\latest\\')
-  delete 'version.txt'
+    // this might only be needed in Linux:
+    // compile files("${System.properties['java.home']}\\lib\\jfxrt.jar")
 }
 
 //# ####################################################################
@@ -30,7 +26,7 @@ clean {
 task writeVersionData {
     def localMachine = java.net.InetAddress.getLocalHost();
     def timeStamp = new java.text.SimpleDateFormat("MM-dd-yyyy HH:mm:ss").format(Calendar.getInstance().getTime())
-    def lowVersion = new java.text.SimpleDateFormat("YYD").format(Calendar.getInstance().getTime())
+    def lowVersion = new java.text.SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime())
 
     version = MAJOR_VERSION + '.' + MINOR_VERSION + '.' + lowVersion
 
@@ -43,9 +39,13 @@ task writeVersionData {
       "    static final String Version = \"" + version + "\"; \n" +
       "}\n"
 
-    def VersionTxt = new File("version.txt")
+    def BuildFolder = new File("build\\libs")
+    if (!BuildFolder.exists()) {
+        BuildFolder.mkdirs()
+    }
+
+    def VersionTxt = new File("build\\libs\\latestversion.json")
     VersionTxt.text = version.toString()
-    
 }
 
 jar.doFirst {
@@ -61,15 +61,17 @@ sourceSets {
 }
 
 jar {
-    println "##########################"
-    println "Building version :  " + version
-    println "##########################"
-
-    manifest.attributes 'Main-Class' : 'TrelloCmd',
+    manifest { attributes 'Main-Class' : 'TrelloCmd',
         'Implementation-Version': version,
         'Implementation-title': 'Trello Client',
         'Class-Path': configurations.compile.collect { 'lib/' + it.getName() }.join(' ')
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+     }
 }
+
 
 //# ####################################################################
 //# Do  Last
@@ -94,17 +96,16 @@ jar.doLast {
 //# Publishing
 //# ####################################################################
 
-task copyBins(type: Copy) {
-    from 'build/libs'
-    into 'dist/latest'
+task publish(type: Copy) {
+    from "build/libs/trello-" + version + ".jar" 
+    rename { String fileName ->
+        fileName.replace(version, 'latest')
+    }
+    from "build/libs/latestversion.json"
+    into 'dist'
 }
 
-task publish() {
-    tasks.copyBins.execute()
-
-    file("build/libs/trello-" + version + ".jar").renameTo(file("build/libs/trello-latest.jar"))
-    delete "build/libs/trello-" + version + ".jar"
-
-    file("version.txt").renameTo(file("build/libs/version.txt"))
+task publish.doFirst {
+    delete fileTree(dir: 'dist\\')
 }
 
