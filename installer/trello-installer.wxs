@@ -9,8 +9,9 @@
          <Directory Id="ProgramFilesFolder">
             <Directory Id="INSTALLDIR" Name="TrelloClient">
                <Component Id="ApplicationFiles" Guid="12345678-1234-1234-1234-222222222222">
-                  <File Id="ApplicationFile1" Source="..\dist\trello-latest.jar"/>
-                  <File Id="ApplicationFile2" Source="..\dist\latestversion.json"/>
+                  <File Id="File1" Source="..\dist\trello-latest.jar"/>
+                  <File Id="File2" Source="..\dist\latestversion.json"/>
+                  <File Id="File3" Source="..\dist\output.log"/>
                </Component>
             </Directory>
          </Directory>
@@ -18,7 +19,7 @@
          <Directory Id="ProgramMenuFolder">
                 <Directory Id="ProgramMenuSubfolder" Name="TrelloClient">
                    <Component Id="ApplicationShortcuts" Guid="12345678-1234-1234-1234-333333333333">
-                      <Shortcut Id="ApplicationShortcut1" Name="Trello Client" Description="Start the trello client" Target="[INSTALLDIR]trello-latest.jar" WorkingDirectory="INSTALLDIR"/>
+                      <Shortcut Id="Shortcut1" Name="Trello Client" Description="Start the trello client" Target="[INSTALLDIR]trello-latest.jar" WorkingDirectory="INSTALLDIR"/>
                       <RegistryValue Root="HKCU" Key="Software\alanboy\Trello Client" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
                       <RemoveFolder Id="ProgramMenuSubfolder" On="uninstall"/>
                    </Component>
