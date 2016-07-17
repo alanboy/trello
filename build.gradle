@@ -97,7 +97,7 @@ jar.doLast {
 //# ####################################################################
 
 task publish(type: Copy) {
-    from "build/libs/trello-" + version + ".jar" 
+    from "build/libs/trello-" + version + ".jar"
     rename { String fileName ->
         fileName.replace(version, 'latest')
     }

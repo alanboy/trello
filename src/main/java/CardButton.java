@@ -17,7 +17,6 @@ import org.trello4j.model.Card;
 
 class CardButton extends JButton {
     private Card trelloCard;
-    private final int MAX_CHARACTERS_IN_TITLE = 24;
     private final long creationTime;
     Logger log;
     ListPanel parentListPanel;

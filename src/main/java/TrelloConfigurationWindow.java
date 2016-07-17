@@ -43,6 +43,9 @@ public class TrelloConfigurationWindow {
         jfrm.setSize(400, 500);
 
         TrelloClient tClient = TrelloClient.GetInstance();
+        if(tClient == null) {
+            
+        }
         String listsInConfig = tClient.getListsInConfig();
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
 

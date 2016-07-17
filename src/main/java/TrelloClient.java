@@ -309,6 +309,10 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
 
     public String getListsInConfig() {
 
+        if (configListArray == null) {
+            return "";
+        }
+
         String output = "";
         // Iterate lists in configuration file
         for (int nCurrentList = 0; nCurrentList < configListArray.size(); nCurrentList++) {
@@ -463,24 +467,26 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
 
     public void checkForSoftwareUpdate() {
 
-        final String versionUrl = "https://github.com/alanboy/trello/raw/master/dist/latest/version.txt";
+        final String versionUrl = "https://github.com/alanboy/trello/raw/master/dist/latest/version.json";
         final File runningBinPath = new File(TrelloClient.class.getProtectionDomain().getCodeSource().getLocation().getPath());
         final String binUrl = "https://github.com/alanboy/trello/raw/master/dist/latest/trello-0.0.2.jar";
 
-
         // Check for version.txt and compare it to my known version.
-
         log.info("Current running directory: " + runningBinPath);
         log.info("Checking for updates in " + binUrl);
 
         try {
-             HttpClient.RequestBinToFile(binUrl, "latest-trello.jar");
+            HttpClient.RequestBinToFile(binUrl, "latest-trello.jar");
+
+            log.info("Update successful, saved to latest-trello.jar.");
+
+        } catch (NullPointerException npe) {
+            log.error("Unable to download new version:" + npe);
+
         } catch (Exception e) {
             log.error("Unable to download new version:" + e);
-            return;
         }
 
-        log.info("Update successful, saved to latest-trello.jar.");
     }
 }
 

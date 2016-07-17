@@ -85,7 +85,7 @@ public class TrelloCmd {
         }
 
         if (!bDontUpdate) {
-            //tClient.checkForSoftwareUpdate();
+            tClient.checkForSoftwareUpdate();
         }
 
         if (!tClient.configExist()) {

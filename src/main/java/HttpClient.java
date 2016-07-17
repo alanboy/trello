@@ -1,40 +1,33 @@
 /**
  * Original from https://github.com/CaffeinaSoftware/pos-erp/blob/master/pos_client/src/mx/caffeina/pos/Http/HttpClient.java
  *
- *
- *
  **/
 import java.io.*;
 import java.net.*;
 import java.util.*;
 
-// A client for our multithreaded EchoServer.
-public class HttpClient
-{
+public class HttpClient {
     /**
     *  The socket for this conection
     * */
     private static Socket s = null;
     private static URL url = null;
 
-    public static StringBuilder Request (String host )
-    {
-        if (!createSocket(host)){
+    public static StringBuilder Request (String host) {
+        if (!createSocket(host)) {
             // Error while creating host
             return null;
         }
         return doRequest();
     }
 
-    public static void RequestBinToFile(String host, String file) throws Exception
-    {
+    public static void RequestBinToFile(String host, String file) throws Exception {
         URL u = new URL(host);
         URLConnection uc = u.openConnection();
         String contentType = uc.getContentType();
         int contentLength = uc.getContentLength();
 
-        if (contentType.startsWith("text/") || contentLength == -1)
-        {
+        if (contentType.startsWith("text/") || contentLength == -1) {
             throw new IOException("This is not a binary file.");
         }
 
@@ -44,8 +37,7 @@ public class HttpClient
         int bytesRead = 0;
         int offset = 0;
 
-        while (offset < contentLength)
-        {
+        while (offset < contentLength) {
             bytesRead = in.read(data, offset, data.length - offset);
             if (bytesRead == -1)
                 break;
@@ -55,8 +47,7 @@ public class HttpClient
 
         in.close();
 
-        if (offset != contentLength)
-        {
+        if (offset != contentLength) {
             throw new IOException("Only read " + offset + " bytes; Expected " + contentLength + " bytes");
         }
 
@@ -67,14 +58,10 @@ public class HttpClient
         out.close();
     }
 
-    private static boolean createSocket( String host_add )
-    {
-
+    private static boolean createSocket(String host_add) {
         try {
             url = new URL(host_add);
         } catch(java.net.MalformedURLException mue) {
-            //Logger.error(mue);
-            //MalformedURLException
             return false;
         }
 
@@ -86,41 +73,32 @@ public class HttpClient
                 s = new Socket(url.getHost(), url.getPort());
 
         } catch(IllegalArgumentException iae) {
-            //Logger.error(iae);
             return false;
 
-        }catch(UnknownHostException uhe){
+        }catch(UnknownHostException uhe) {
             // Host unreachable
-            //Logger.error(uhe);
             return false;
 
-        }catch(IOException ioe){
+        }catch(IOException ioe) {
             // Cannot connect to port on given host
-            //Logger.error(ioe);
             return false;
 
-        }catch(Exception e){
-            //Logger.error(e);
+        }catch(Exception e) {
             return false;
         }
 
         return true;
     }
 
-    private static StringBuilder doRequest(  )
-    {
+    private static StringBuilder doRequest() {
+        BufferedReader in = null;
+        PrintWriter out = null;
+        StringBuilder response = new StringBuilder("");
 
-        //Logger.log("Doing request...");
-
-        BufferedReader  in          = null;
-        PrintWriter     out         = null;
-        StringBuilder   response    = new StringBuilder("");
-
-        try{
+        try {
             // Create the streams to send and receive information
             in = new BufferedReader(new InputStreamReader(s.getInputStream()));
             out = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
-
 
             //send petition
             out.println("GET "+ url.getFile() +" HTTP/1.1");
@@ -138,64 +116,58 @@ public class HttpClient
             int contentLength = 0;
             String transferEncoding = null;
 
-            while ((r = in.readLine()) != null){
-                if(r.startsWith("Content-Length")){
+            while ((r = in.readLine()) != null) {
+                if(r.startsWith("Content-Length")) {
                     contentLength = Integer.parseInt((r.split(":")[1]).trim());
                 }
 
-                if(r.startsWith("Content-Type")){
+                if(r.startsWith("Content-Type")) {
                     //headerEnded = true;
                 }
 
-                if(r.startsWith("Set-Cookie")){
+                if(r.startsWith("Set-Cookie")) {
                     //save the cookie somewhere
                 }
 
-                if(r.startsWith("Transfer-Encoding")){
+                if(r.startsWith("Transfer-Encoding")) {
                     transferEncoding = (r.split(":")[1]).trim();
                 }
 
-                if(r.length() == 0){
+                if(r.length() == 0) {
 
                     /** ************************************************ **
-                            READ THE ACTUAL RESPONSE
+                          READ THE ACTUAL RESPONSE
                      ** ************************************************ **/
 
                     // ok, ya termine...
-                    if(contentLength == 0){
+                    if(contentLength == 0) {
                         //no me enviaron content-length
                         //leer hasta que el buffer tenga nulo
-
-                        // read chunks
-                        if(transferEncoding.equals("chunked"))
-                        {
+                        if(transferEncoding.equals("chunked")) {
                             int chunk = 0;
-                            while( (chunk = Integer.parseInt( in.readLine() , 16) ) != 0 )
-                            {
-                                    while(--chunk >= -1){
-                                        response.append( (char)in.read() );
-                                    }
+                            while((chunk = Integer.parseInt(in.readLine() , 16)) != 0) {
+                                while(--chunk >= -1) {
+                                    response.append((char)in.read());
+                                }
 
-                                    in.readLine();
+                                in.readLine();
                             }
 
                             break;
                         }
 
                         //read line by line
-                        while((r = in.readLine() ) != null)
-                        {
+                        while((r = in.readLine()) != null) {
                             response.append(r+"\n");
                         }
 
-                    }else{
+                    } else {
 
                         // only read content-length char count
                         //Logger.log("Reading Content-Length, which is ("+contentLength+") bytes");
 
-                        while(--contentLength >= 0)
-                        {
-                            response.append( (char)in.read() );
+                        while(--contentLength >= 0) {
+                            response.append((char)in.read());
                         }
                     }
 
@@ -203,14 +175,10 @@ public class HttpClient
                 }
             }
 
-        }catch(IOException ioe){
-            //Logger.error("Exception during communication. Server probably closed connection.");
-            //Logger.error(ioe);
+        } catch(IOException ioe) {
             System.out.println("Exception during communication. Server probably closed connection.");
 
-        }finally{
-            //Logger.log( "Closing http-client buffers...");
-
+        } finally{
             try{
                 // Close the streams
                 out.close();
@@ -219,12 +187,10 @@ public class HttpClient
                 // Close the socket before quitting
                 s.close();
 
-            }catch(Exception e){
+            }catch(Exception e) {
                 e.printStackTrace();
-                //Logger.error( e );
             }
         }
-
         return response;
     }
 }

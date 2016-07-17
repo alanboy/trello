@@ -11,9 +11,13 @@
                <Component Id="ApplicationFiles" Guid="12345678-1234-1234-1234-222222222222">
                   <File Id="File1" Source="..\dist\trello-latest.jar"/>
                   <File Id="File2" Source="..\dist\latestversion.json"/>
-                  <File Id="File3" Source="..\dist\output.log"/>
+                  <CreateFolder>
+                    <Permission User="Everyone" GenericAll="yes" ChangePermission="yes"/>
+                  </CreateFolder>
                </Component>
             </Directory>
+
+
          </Directory>
 
          <Directory Id="ProgramMenuFolder">
@@ -25,11 +29,13 @@
                    </Component>
                 </Directory>
          </Directory>
+
       </Directory>
 
       <Feature Id="DefaultFeature" Level="1">
          <ComponentRef Id="ApplicationFiles"/>
          <ComponentRef Id="ApplicationShortcuts"/>
+
       </Feature>
    </Product>
 </Wix>
