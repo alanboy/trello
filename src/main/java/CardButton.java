@@ -70,6 +70,18 @@ class CardButton extends JButton {
             }
         });
 
+        JMenuItem moveToTopMenu = new JMenuItem("Move to top");
+        moveToTopMenu.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent ev) {
+                try {
+                    TrelloClient.GetInstance().moveCardToTop(trelloCard);
+                    TrelloClient.GetInstance().updateOnce();
+                } catch(Exception ex) {
+                    log.error(ex);
+                }
+            }
+        });
+
         JMenuItem newCardMenu = new JMenuItem("New card");
         newCardMenu.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent ev) {
@@ -113,6 +125,7 @@ class CardButton extends JButton {
         exitMenu.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e)
             {
+                log.info("Exiting per user request");
                 System.exit(0);
             }
         });
@@ -123,7 +136,7 @@ class CardButton extends JButton {
                 int response = JOptionPane.showConfirmDialog(null,
                     "Archive?", "Are you sure you want to archive " + trelloCard.getName(), JOptionPane.YES_NO_OPTION);
 
-                if (response != 0) { // 0 means YES
+                if (response != 0 /*YES*/) {
                     return;
                 }
 
@@ -140,6 +153,7 @@ class CardButton extends JButton {
         buttonPopUp.add(newCardMenu);
         buttonPopUp.add(openBoardInBrowser);
         buttonPopUp.add(moveToListMenu);
+        buttonPopUp.add(moveToTopMenu);
         buttonPopUp.add(archiveCardMenu);
         buttonPopUp.addSeparator();
         buttonPopUp.add(hideForAWhile);

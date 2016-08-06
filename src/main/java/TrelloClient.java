@@ -176,6 +176,14 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         trello4jClient.closeCard(c.getId());
     }
 
+    public void moveCardToTop(Card c) {
+        if (!isInitialized) {
+           return;
+        }
+
+        trello4jClient.moveToTop(c.getId());
+    }
+
     // Look for a list that is called, "Done" and move cCard to that list
     public void moveCardToList(Card cCard, String sListId) { // throws Exception
         if (!isInitialized) {

@@ -29,8 +29,7 @@ public class UIServer {
     // *************************************************************************
     public static void createAndShowGUI() {
 
-        log.debug("Created GUI on EDT? "+
-                SwingUtilities.isEventDispatchThread());
+        log.debug("Created GUI on EDT? " + SwingUtilities.isEventDispatchThread());
 
         frame = new JDialog();
 
@@ -38,11 +37,10 @@ public class UIServer {
         frame.setLayout(experimentLayout);
 
         frame.setLocation(200, System.getProperty("os.name").toLowerCase().startsWith("mac") ? 25 : 0 );
-        frame.setResizable(true);
         frame.setUndecorated(true);
         frame.setAlwaysOnTop(true);
-        frame.setOpacity(0.9f);
         frame.setFocusableWindowState(true);
+        frame.getRootPane().setBorder(BorderFactory.createLineBorder(Color.RED));
         JButton mainMenu = new MainMenuButton();
         frame.add(mainMenu);
 
@@ -59,7 +57,6 @@ public class UIServer {
 
         } catch (Throwable t) {
             log.info(t);
-            //System.exit(1);
         }
 
         log.debug("createAndShowGUI thread ends");
