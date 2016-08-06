@@ -42,7 +42,7 @@ public class UIServer {
         frame.setUndecorated(true);
         frame.setAlwaysOnTop(true);
         frame.setOpacity(0.9f);
-        frame.setFocusableWindowState(false);
+        frame.setFocusableWindowState(true);
         JButton mainMenu = new MainMenuButton();
         frame.add(mainMenu);
 
