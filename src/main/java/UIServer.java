@@ -41,6 +41,8 @@ public class UIServer {
         frame.setAlwaysOnTop(true);
         frame.setFocusableWindowState(true);
         frame.getRootPane().setBorder(BorderFactory.createLineBorder(Color.RED));
+        frame.getContentPane().setBackground(Color.decode("0xe2e4e6"));
+
         JButton mainMenu = new MainMenuButton();
         frame.add(mainMenu);
 

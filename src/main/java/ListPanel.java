@@ -48,7 +48,7 @@ class ListPanel extends JPanel {
             this.add(cardButton);
         }
 
-        this.setLayout(new InvisibleGridLayout(0,1));
+        this.setLayout(new InvisibleGridLayout(0, 1));
         this.setAlignmentY(Component.TOP_ALIGNMENT);
     }
 
@@ -83,8 +83,23 @@ class ListPanel extends JPanel {
     }
 
     public void updateTimes() {
+        CardButton oldestCard = null;
+        long oldestTime = System.currentTimeMillis() / 1000L;
+
         for (Component c : this.getComponents()) {
             CardButton card = (CardButton)c;
+            long creationTime = card.getCreationTime();
+            if (creationTime  < oldestTime) {
+                oldestTime = creationTime;
+                oldestCard = card;
+            }
+        }
+
+        for (Component c : this.getComponents()) {
+            CardButton card = (CardButton)c;
+            if (card == oldestCard) {
+                card.setOldestCard(true);
+            }
             card.update();
         }
     }

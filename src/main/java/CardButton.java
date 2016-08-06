@@ -20,11 +20,13 @@ class CardButton extends JButton {
     private final long creationTime;
     Logger log;
     ListPanel parentListPanel;
+    private boolean oldestCardInList;
 
     CardButton(Card c, ListPanel parentPanel) {
         this.trelloCard = c;
         this.parentListPanel = parentPanel;
         this.log = LogManager.getLogger();
+        this.oldestCardInList = false;
 
         log.info("Creating CardButton for card id = "+ c.getId() +"");
 
@@ -41,6 +43,7 @@ class CardButton extends JButton {
         this.setContentAreaFilled(false);
         this.setFocusPainted(false);
         this.setToolTipText(c.getName() + "\n" + c.getDesc());
+        this.setOpaque(true);
 
         // Contextual menu
         JPopupMenu buttonPopUp = new JPopupMenu();
@@ -123,8 +126,8 @@ class CardButton extends JButton {
 
         JMenuItem exitMenu = new JMenuItem("Exit");
         exitMenu.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e)
-            {
+            public void actionPerformed(ActionEvent e) {
+                // This might not get flushed to log:
                 log.info("Exiting per user request");
                 System.exit(0);
             }
@@ -175,6 +178,10 @@ class CardButton extends JButton {
         return creationTime;
     }
 
+    public void setOldestCard(boolean oldest) {
+        this.oldestCardInList = oldest;
+    }
+
     void update() {
 
         String shortTitle;
@@ -189,6 +196,9 @@ class CardButton extends JButton {
         int seconds = init % 60;
 
         // Color palete http://paletton.com/#uid=33L100kllllA7corxgSf9pO8Yui
+        if (oldestCardInList) {
+            this.setBackground(Color.YELLOW);
+        }
 
         String titleColor = "061842";
         String timeColor = "2E4172";
