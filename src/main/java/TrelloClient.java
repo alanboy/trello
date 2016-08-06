@@ -475,13 +475,33 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
 
     public void checkForSoftwareUpdate() {
 
-        final String versionUrl = "https://github.com/alanboy/trello/raw/master/dist/latest/version.json";
+        final String verUrl = "https://raw.githubusercontent.com/alanboy/trello/master/dist/latestversion.json";
+        final String binUrl = "https://github.com/alanboy/trello/raw/master/dist/latest/trello-latest.jar";
         final File runningBinPath = new File(TrelloClient.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-        final String binUrl = "https://github.com/alanboy/trello/raw/master/dist/latest/trello-0.0.2.jar";
 
-        // Check for version.txt and compare it to my known version.
+        // get latest version on github
+        String versionInGithub = null;
+        try {
+           versionInGithub = HttpClient.Request(verUrl);
+
+        } catch (NullPointerException npe) {
+            log.error("Unable to download new version:" + npe);
+            return;
+        } catch (Exception e) {
+            log.error("Unable to download new version:" + e);
+            return;
+        }
+
+        log.info("version in github " + versionInGithub);
+        log.info("local version     " + About.Version);
+
+        if (versionInGithub.equals(About.Version)) {
+            log.info("No need to update");
+            return;
+        }
+
+        log.info("Updating to version " + versionInGithub);
         log.info("Current running directory: " + runningBinPath);
-        log.info("Checking for updates in " + binUrl);
 
         try {
             HttpClient.RequestBinToFile(binUrl, "latest-trello.jar");

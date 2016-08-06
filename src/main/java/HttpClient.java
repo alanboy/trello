@@ -1,29 +1,42 @@
 /**
- * Original from https://github.com/CaffeinaSoftware/pos-erp/blob/master/pos_client/src/mx/caffeina/pos/Http/HttpClient.java
+ * Forked from https://github.com/CaffeinaSoftware/pos-erp/blob/master/pos_client/src/mx/caffeina/pos/Http/HttpClient.java
  *
  **/
 import java.io.*;
 import java.net.*;
 import java.util.*;
 
-public class HttpClient {
-    /**
-    *  The socket for this conection
-    * */
-    private static Socket s = null;
-    private static URL url = null;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.cert.Certificate;
+import java.io.*;
 
-    public static StringBuilder Request (String host) {
-        if (!createSocket(host)) {
-            // Error while creating host
-            return null;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+
+public class HttpClient {
+
+    public static String Request(String urlString) throws Exception {
+        String response = "";
+
+        URL url = new URL(urlString);
+        HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+
+        String input;
+        while ((input = br.readLine()) != null) {
+            response += input;
         }
-        return doRequest();
+        br.close();
+
+        return response;
     }
 
-    public static void RequestBinToFile(String host, String file) throws Exception {
-        URL u = new URL(host);
-        URLConnection uc = u.openConnection();
+    public static void RequestBinToFile(String urlString, String file) throws Exception {
+        URL url = new URL(urlString);
+        URLConnection uc = url.openConnection();
+
         String contentType = uc.getContentType();
         int contentLength = uc.getContentLength();
 
@@ -56,142 +69,6 @@ public class HttpClient {
         out.write(data);
         out.flush();
         out.close();
-    }
-
-    private static boolean createSocket(String host_add) {
-        try {
-            url = new URL(host_add);
-        } catch(java.net.MalformedURLException mue) {
-            return false;
-        }
-
-        try {
-            //create the socket
-            if(url.getPort() == -1)
-                s = new Socket(url.getHost(), 80);
-            else
-                s = new Socket(url.getHost(), url.getPort());
-
-        } catch(IllegalArgumentException iae) {
-            return false;
-
-        }catch(UnknownHostException uhe) {
-            // Host unreachable
-            return false;
-
-        }catch(IOException ioe) {
-            // Cannot connect to port on given host
-            return false;
-
-        }catch(Exception e) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private static StringBuilder doRequest() {
-        BufferedReader in = null;
-        PrintWriter out = null;
-        StringBuilder response = new StringBuilder("");
-
-        try {
-            // Create the streams to send and receive information
-            in = new BufferedReader(new InputStreamReader(s.getInputStream()));
-            out = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
-
-            //send petition
-            out.println("GET "+ url.getFile() +" HTTP/1.1");
-            out.println("Accept:text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-            out.println("Accept-Charset:ISO-8859-1,utf-8;q=0.7,*;q=0.3");
-            /*out.println("Accept-Encoding:gzip,deflate,sdch");*/
-            out.println("User-Agent: POS_CLIENT 1.0");
-            out.println("Host: "+url.getHost()+"\n\n");
-
-            out.flush();
-
-            // receive the reply.
-            String r ;
-            boolean headerEnded = false;
-            int contentLength = 0;
-            String transferEncoding = null;
-
-            while ((r = in.readLine()) != null) {
-                if(r.startsWith("Content-Length")) {
-                    contentLength = Integer.parseInt((r.split(":")[1]).trim());
-                }
-
-                if(r.startsWith("Content-Type")) {
-                    //headerEnded = true;
-                }
-
-                if(r.startsWith("Set-Cookie")) {
-                    //save the cookie somewhere
-                }
-
-                if(r.startsWith("Transfer-Encoding")) {
-                    transferEncoding = (r.split(":")[1]).trim();
-                }
-
-                if(r.length() == 0) {
-
-                    /** ************************************************ **
-                          READ THE ACTUAL RESPONSE
-                     ** ************************************************ **/
-
-                    // ok, ya termine...
-                    if(contentLength == 0) {
-                        //no me enviaron content-length
-                        //leer hasta que el buffer tenga nulo
-                        if(transferEncoding.equals("chunked")) {
-                            int chunk = 0;
-                            while((chunk = Integer.parseInt(in.readLine() , 16)) != 0) {
-                                while(--chunk >= -1) {
-                                    response.append((char)in.read());
-                                }
-
-                                in.readLine();
-                            }
-
-                            break;
-                        }
-
-                        //read line by line
-                        while((r = in.readLine()) != null) {
-                            response.append(r+"\n");
-                        }
-
-                    } else {
-
-                        // only read content-length char count
-                        //Logger.log("Reading Content-Length, which is ("+contentLength+") bytes");
-
-                        while(--contentLength >= 0) {
-                            response.append((char)in.read());
-                        }
-                    }
-
-                    break;
-                }
-            }
-
-        } catch(IOException ioe) {
-            System.out.println("Exception during communication. Server probably closed connection.");
-
-        } finally{
-            try{
-                // Close the streams
-                out.close();
-                in.close();
-
-                // Close the socket before quitting
-                s.close();
-
-            }catch(Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return response;
     }
 }
 
