@@ -39,9 +39,10 @@ public class UIServer {
         frame.setLocation(200, System.getProperty("os.name").toLowerCase().startsWith("mac") ? 25 : 0 );
         frame.setUndecorated(true);
         frame.setAlwaysOnTop(true);
-        frame.setFocusableWindowState(true);
+        frame.setFocusableWindowState(false);
         frame.getRootPane().setBorder(BorderFactory.createLineBorder(Color.RED));
         frame.getContentPane().setBackground(Color.decode("0xe2e4e6"));
+        frame.setType(Window.Type.UTILITY);
 
         JButton mainMenu = new MainMenuButton();
         frame.add(mainMenu);

@@ -2,6 +2,6 @@
 public class About { 
     static final String BuiltByMachine = "DESKTOP-VT4BSKK"; 
     static final String BuiltByUser = "AlanGon"; 
-    static final String DateTime = "08-06-2016 14:42:54"; 
-    static final String Version = "0.3.20160806"; 
+    static final String DateTime = "02-13-2017 18:57:17"; 
+    static final String Version = "0.3.20170213"; 
 }
