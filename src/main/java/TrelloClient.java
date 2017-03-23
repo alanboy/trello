@@ -476,7 +476,7 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
     public void checkForSoftwareUpdate() {
 
         final String verUrl = "https://raw.githubusercontent.com/alanboy/trello/master/dist/latestversion.json";
-        final String binUrl = "https://github.com/alanboy/trello/raw/master/dist/latest/trello-latest.jar";
+        final String binUrl = "https://github.com/alanboy/trello/raw/master/dist/trello-latest.jar";
         final File runningBinPath = new File(TrelloClient.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 
         // get latest version on github
