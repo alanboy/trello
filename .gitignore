@@ -2,6 +2,6 @@
 build/
 .idea/
 output.log
-trello-installer.msi
+installer/trello-installer.msi
 trello-installer.wixobj
 trello-installer.wixpdb

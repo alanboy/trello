@@ -103,6 +103,8 @@ task publish(type: Copy) {
     }
     from "build/libs/latestversion.json"
     into 'dist'
+    from "installer/trello-installer.msi"
+    into 'dist'
 }
 
 task publish.doFirst {
