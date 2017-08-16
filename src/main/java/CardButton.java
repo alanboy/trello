@@ -209,8 +209,8 @@ class CardButton extends JButton {
             timeColor = "A2A838";
         }
 
-        if (title.length() > 20) {
-            shortTitle = title.substring(0, 20);
+        if (title.length() > 40) {
+            shortTitle = title.substring(0, 40);
         } else {
             shortTitle = title;
         }
