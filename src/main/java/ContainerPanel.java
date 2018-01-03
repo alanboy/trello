@@ -19,7 +19,7 @@ import org.apache.logging.log4j.*;
 class ContainterPanel extends JPanel {
 
     private String listId;
-    public ListPanel listPanel;
+    private ListPanel listPanel;
     private CardButton button;
     private JButton minimizeList;
     private boolean isDroppedDown;
@@ -35,21 +35,22 @@ class ContainterPanel extends JPanel {
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
         listPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        Card topcard = listPanel.listModel.elementAt(0);
-
-        button = new CardButton(topcard, listPanel);
-        button.setLayout(new BoxLayout(button, BoxLayout.Y_AXIS));
-        button.setAlignmentX(Component.CENTER_ALIGNMENT);
-        button.setVisible(!isDroppedDown);
-        button.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ev) {
-                isDroppedDown = true;
-                updateVisibilityOfElements  ();
-            }
-        });
+        if (listPanel.listModel.size() > 0) {
+            Card topcard = listPanel.listModel.elementAt(0);
+            button = new CardButton(topcard);
+            button.setLayout(new BoxLayout(button, BoxLayout.Y_AXIS));
+            button.setAlignmentX(Component.CENTER_ALIGNMENT);
+            button.setVisible(!isDroppedDown);
+            button.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ev) {
+                    isDroppedDown = true;
+                    updateVisibilityOfElements  ();
+                }
+            });
+            this.add(button);
+        }
 
         minimizeList = new JButton("^^^^^^^^");
-
         minimizeList.setVisible(isDroppedDown);
         minimizeList.setLayout(new BoxLayout(minimizeList, BoxLayout.Y_AXIS));
         minimizeList.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -59,8 +60,6 @@ class ContainterPanel extends JPanel {
                 updateVisibilityOfElements  ();
             }
         });
-
-        this.add(button);
 
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.add(listPanel);
@@ -84,7 +83,12 @@ class ContainterPanel extends JPanel {
         minimizeList.setVisible(isDroppedDown);
 
         JDialog topFrame = (JDialog)SwingUtilities.windowForComponent(listPanel);
-        topFrame.pack();
+        if (topFrame != null)
+            topFrame.pack();
+    }
+
+    public ListPanel getListPanel() {
+        return listPanel;
     }
 
     public String getListId() {

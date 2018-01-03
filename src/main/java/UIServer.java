@@ -81,14 +81,13 @@ public class UIServer {
         log.debug("createAndShowGUI thread ends");
     }
 
-    static void addList( final String sListId, final List<Card> listOfCards, List<org.trello4j.model.List> listsInBoard) {
+    static void addList(final String sListId, final List<Card> listOfCards, List<org.trello4j.model.List> listsInBoard) {
 
         log.debug("Adding list " + sListId);
 
         ListPanel existingList = getList(sListId);
         if (existingList == null) {
             // Add new ListPanel to the frame
-            ListPanel f = new ListPanel(sListId, listOfCards, listsInBoard);
             ContainterPanel cp = new ContainterPanel(sListId, listOfCards, listsInBoard);
 
             // Add ListPanel (JPanel) to main Window (JDialog)
@@ -110,7 +109,7 @@ public class UIServer {
         for(Component c : frame.getContentPane().getComponents()) {
             if (c instanceof ContainterPanel) {
                 if (((ContainterPanel)c).getListId().equals(sListId)) {
-                    return ((ContainterPanel)c).listPanel;
+                    return ((ContainterPanel)c).getListPanel();
                 }
             }
         }

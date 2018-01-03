@@ -17,15 +17,11 @@ import org.trello4j.model.Card;
 
 class CardButton extends JButton {
     private Card trelloCard;
-    Logger log;
-    ListPanel parentListPanel;
-    private boolean oldestCardInList;
+    private Logger log;
 
-    CardButton(Card c, ListPanel parentPanel) {
+    CardButton(Card c) {
         this.trelloCard = c;
-        this.parentListPanel = parentPanel;
         this.log = LogManager.getLogger();
-        this.oldestCardInList = false;
 
         log.info("Creating CardButton for card id = "+ c.getId() +"");
 
@@ -79,7 +75,7 @@ class CardButton extends JButton {
             +  " <font color=\"" + timeColor + "\">" 
             + (days > 0 ? days + "d " : "")
             + (hours < 10 ? "0" : "") + hours + ":"
-            + (minutes < 10 ? "0" : "") + minutes + ""
+            + (minutes < 10 ? "0" : "") + minutes + ":"
             + (seconds < 10 ? "0" : "") + seconds
             + "</font></html>";
 

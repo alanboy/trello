@@ -20,12 +20,12 @@ import java.util.*;
 public class ListPanel extends JList<Card> {
 
     private HashMap<String, Color> cardColors = null;
+    private HashSet<Long> userModifiedCards = null;
     private List<Card> cards;
     private List<org.trello4j.model.List>  listsInBoard;
     private Logger log;
     private final String sListId;
     public DefaultListModel<Card> listModel;
-    public boolean isDroppedDown = false;
 
     ListPanel(final String sListId, final List<Card> cards, List<org.trello4j.model.List> listsInBoard) {
         super();
@@ -37,12 +37,14 @@ public class ListPanel extends JList<Card> {
 
         log.info("Creating new ListPanel:" + sListId);
 
+
+        userModifiedCards = new HashSet<Long>();
+
         DefaultListModel<Card> listModel = new DefaultListModel<Card>();
         this.listModel = listModel;
         this.setModel(listModel);
 
         ListPanelMouseAdapter mouseAdapter = new ListPanelMouseAdapter(this, listModel);
-
         this.addMouseListener(mouseAdapter);
         this.addMouseMotionListener(mouseAdapter);
 
@@ -59,19 +61,22 @@ public class ListPanel extends JList<Card> {
         for (int i = 0; i < this.listModel.getSize(); i++) {
             Card localCard = this.listModel.elementAt(i);
 
+            if (!userModifiedCards.contains(localCard.getIdShort())) {
+                continue;
+            }
+
             for (int j = 0; j < cards.size(); j++) {
                 Card serverCard = cards.get(j);
 
                 if ((localCard.getIdShort().equals(serverCard.getIdShort()))
                         && (localCard.getPos() != serverCard.getPos())) {
 
-                    String title = localCard.getName();
-
-                    title = serverCard.getName();
                     changesMade = true;
 
                     log.info("Updating position of card");
                     TrelloClient.GetInstance().moveCardToPos(localCard, localCard.getPos());
+
+                    userModifiedCards.remove(localCard.getIdShort());
                 }
             }
         }
@@ -129,6 +134,10 @@ public class ListPanel extends JList<Card> {
         for (Card c : cards) {
             this.listModel.addElement(c);
         }
+
+        JDialog topFrame = (JDialog)SwingUtilities.windowForComponent(this);
+        if (topFrame != null)
+            topFrame.pack();
     }
 
     public List<org.trello4j.model.List> getListsInBoard() {
@@ -153,9 +162,9 @@ public class ListPanel extends JList<Card> {
         public Card trelloCard;
         public Long creationTime;
 
-        public CardComparable(Card c) {
-            this.trelloCard = c;
-            this.creationTime = Long.parseLong(c.getId().substring(0,8), 16);
+        public CardComparable(Card card) {
+            this.trelloCard = card;
+            this.creationTime = Long.parseLong(card.getId().substring(0,8), 16);
         }
 
         public int compareTo(CardComparable right) {
@@ -164,12 +173,9 @@ public class ListPanel extends JList<Card> {
     }
 
     class ListPanelCellRenderer implements ListCellRenderer {
-
-        private ListPanel parentlistpanel;
         private HashMap<String, CardButton> cards;
 
         public ListPanelCellRenderer(ListPanel listPanel) {
-            parentlistpanel = listPanel;
             cards = new HashMap<String, CardButton> ();
         }
 
@@ -178,7 +184,7 @@ public class ListPanel extends JList<Card> {
             Card trelloCard = (Card)value;
 
             if (!cards.containsKey(trelloCard.getId())) {
-                CardButton cardButton = new CardButton(trelloCard, parentlistpanel);
+                CardButton cardButton = new CardButton(trelloCard);
                 cards.put(trelloCard.getId(), cardButton);
             }
 
@@ -266,7 +272,7 @@ public class ListPanel extends JList<Card> {
                     public void actionPerformed(ActionEvent ev) {
                         String newCardTitle = JOptionPane.showInputDialog("New card");
                         try {
-                            // TrelloClient.GetInstance().newCardToList(parentListPanel.getListId(), newCardTitle);
+                            TrelloClient.GetInstance().newCardToList(sListId, newCardTitle);
                             TrelloClient.GetInstance().updateOnce();
                         } catch(Exception ex) {
                             log.error(ex);
@@ -339,7 +345,6 @@ public class ListPanel extends JList<Card> {
                 buttonPopUp.add(exitMenu);
 
                 myList.setSelectedIndex(myList.locationToIndex(e.getPoint())); //select the item
-
                 buttonPopUp.show(myList, e.getX(), e.getY()); //and show the menu
             }
         }
@@ -357,24 +362,24 @@ public class ListPanel extends JList<Card> {
                     myListModel.remove(dragSourceIndex);
                     myListModel.add(dragTargetIndex, dragElement);
 
-                    double newpos = 0.0;
-
+                    double newPos = 0.0;
                     if (dragTargetIndex == 0) {
                         // Moving card to the topS
                         Card after  = myListModel.get(dragTargetIndex + 1);
-                        newpos = (after.getPos() ) / 2;
+                        newPos = (after.getPos()) / 2;
 
-                    } else if (dragTargetIndex == (myListModel.getSize()-1)) {
+                    } else if (dragTargetIndex == (myListModel.getSize() - 1)) {
                         // Moving card to the bottom of the list
                         Card before = myListModel.get(dragTargetIndex - 1);
-                        newpos = (before.getPos() ) +1;
+                        newPos = (before.getPos()) + 1;
                     } else {
                         Card before = myListModel.get(dragTargetIndex - 1);
                         Card after  = myListModel.get(dragTargetIndex + 1);
-                        newpos = (after.getPos() + before.getPos()) / 2;
+                        newPos = (after.getPos() + before.getPos()) / 2;
                     }
 
-                    dragElement.setPos(newpos);
+                    dragElement.setPos(newPos);
+                    userModifiedCards.add(dragElement.getIdShort());
                     dragSourceIndex = currentIndex;
                 }
             }
