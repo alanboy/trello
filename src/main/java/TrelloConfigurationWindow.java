@@ -40,12 +40,9 @@ public class TrelloConfigurationWindow {
 
         JFrame jfrm = new JFrame("Trello Client Configuration");
         jfrm.setLayout(new FlowLayout());
-        jfrm.setSize(400, 500);
+        jfrm.setSize(300, 500);
 
         TrelloClient tClient = TrelloClient.GetInstance();
-        if(tClient == null) {
-            
-        }
         String listsInConfig = tClient.getListsInConfig();
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
 
@@ -72,25 +69,25 @@ public class TrelloConfigurationWindow {
         jfrm.add(new JScrollPane(tree));
 
         tree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
-                @Override
-                public void valueChanged(TreeSelectionEvent event) {
-                    TRelloNode tn = (TRelloNode) tree.getLastSelectedPathComponent();
+            @Override
+            public void valueChanged(TreeSelectionEvent event) {
+                TRelloNode tn = (TRelloNode) tree.getLastSelectedPathComponent();
 
-                    TrelloClient tClient = TrelloClient.GetInstance();
-                    if (tn.isSelected()) {
-                        tClient.removeListFromConfig(tn.id);
-                    } else {
-                        tClient.addListToConfig(tn.id);
-                    }
-
-                    tn.setSelected(!tn.isSelected());
-
-                    try {
-                        TrelloClient.GetInstance().updateOnce();
-                    } catch(Exception e) {
-                        // nothing i can do
-                    }
+                TrelloClient tClient = TrelloClient.GetInstance();
+                if (tn.isSelected()) {
+                    tClient.removeListFromConfig(tn.id);
+                } else {
+                    tClient.addListToConfig(tn.id);
                 }
+
+                tn.setSelected(!tn.isSelected());
+
+                try {
+                    TrelloClient.GetInstance().updateOnce();
+                } catch(Exception e) {
+                    // nothing i can do
+                }
+            }
         });
 
         jfrm.setVisible(true);
@@ -100,6 +97,7 @@ public class TrelloConfigurationWindow {
 class TRelloNode extends DefaultMutableTreeNode {
     public boolean selected;
     public String id;
+
     public TRelloNode(String title, String listId, boolean selected) {
         super(title);
         this.id = listId;
@@ -118,20 +116,17 @@ class TRelloNode extends DefaultMutableTreeNode {
  class MyTreeCellRenderer extends DefaultTreeCellRenderer {
 
     @Override
-    public Component getTreeCellRendererComponent(JTree tree, Object value,
-            boolean sel, boolean exp, boolean leaf, int row, boolean hasFocus) {
+    public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean exp, boolean leaf, int row, boolean hasFocus) {
         super.getTreeCellRendererComponent(tree, value, sel, exp, leaf, row, hasFocus);
 
         // Assuming you have a tree of Strings
-        String node2 = (String) ((DefaultMutableTreeNode) value).getUserObject();
+        if (value != null && value instanceof TRelloNode) {
+            TRelloNode emailMessage = (TRelloNode) value;
 
-         if (value != null && value instanceof TRelloNode) {
+            if (emailMessage.isSelected())
+                setForeground(new Color(253, 57 ,115));
 
-                 TRelloNode emailMessage = (TRelloNode) value;
-                 if (emailMessage.isSelected())
-                        setForeground(new Color(253, 57 ,115));
-
-                 return this;
+            return this;
         }
 
         return this;

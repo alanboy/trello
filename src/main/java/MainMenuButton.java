@@ -18,7 +18,6 @@ class MainMenuButton extends JButton {
         log.info("Creating MainMenuButton");
 
         this.setMargin(new Insets(0, 0, 0, 0));
-        this.setContentAreaFilled(false);
         this.setFocusPainted(false);
         this.isMovingWindow = false;
 

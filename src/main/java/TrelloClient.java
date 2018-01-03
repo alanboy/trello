@@ -77,8 +77,6 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
                 doWork();
                 secondsSinceUpdate = 0;
             }
-
-            UIServer.updateTimes();
         }
 
         // unreachable code...
@@ -117,10 +115,19 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
                 log.info("List `" + listId + "` has no cards!" );
             }
 
-            UIServer.addList(listId, listOfCardsInList, listsInBoard);
-        }
+            try {
+                UIServer.addList(listId, listOfCardsInList, listsInBoard);
 
-        UIServer.updateTimes();
+            } catch(Exception e) {
+                log.error("Unable to add list from client");
+                log.error(e);
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                e.printStackTrace(pw);
+                String sStackTrace = sw.toString(); // stack trace as a string
+                log.error(sStackTrace);
+            }
+        }
 
         log.info(">>>>>>>>>>>>>>>>>>>>> Exiting doWork()");
     }
@@ -182,6 +189,14 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         }
 
         trello4jClient.moveToTop(c.getId());
+    }
+
+    public void moveCardToPos(Card c, double pos) {
+        if (!isInitialized) {
+           return;
+        }
+
+        trello4jClient.moveToPos(c.getId(), pos);
     }
 
     // Look for a list that is called, "Done" and move cCard to that list
