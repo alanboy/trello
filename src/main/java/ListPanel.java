@@ -40,11 +40,10 @@ public class ListPanel extends JList<Card> {
 
         userModifiedCards = new HashSet<Long>();
 
-        DefaultListModel<Card> listModel = new DefaultListModel<Card>();
-        this.listModel = listModel;
-        this.setModel(listModel);
+        this.listModel = new DefaultListModel<Card>();
+        this.setModel(this.listModel);
 
-        ListPanelMouseAdapter mouseAdapter = new ListPanelMouseAdapter(this, listModel);
+        ListPanelMouseAdapter mouseAdapter = new ListPanelMouseAdapter(this, this.listModel);
         this.addMouseListener(mouseAdapter);
         this.addMouseMotionListener(mouseAdapter);
 

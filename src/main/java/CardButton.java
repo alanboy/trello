@@ -32,7 +32,6 @@ class CardButton extends JButton {
         this.setToolTipText(c.getName() + "\n" + c.getDesc());
         this.setOpaque(true);
 
-        // The first 8 character of the card are the unix timestamp of creation
         updateText();
     }
 
@@ -47,8 +46,8 @@ class CardButton extends JButton {
         String title = trelloCard.getName();
         long unixTime = System.currentTimeMillis() / 1000L;
 
-        long creationTime;
-        creationTime = Long.parseLong(trelloCard.getId().substring(0,8), 16);
+        // The first 8 character of the card are the unix timestamp of creation
+        long creationTime = Long.parseLong(trelloCard.getId().substring(0,8), 16);
 
         int init = (int)(unixTime - creationTime);
         int days = (int)(Math.floor(init / 86400));
@@ -80,10 +79,6 @@ class CardButton extends JButton {
             + "</font></html>";
 
         this.setText(html);
-    }
-
-    public Long getId() {
-        return trelloCard.getIdShort();
     }
 }
 
