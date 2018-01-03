@@ -17,7 +17,6 @@ import org.trello4j.model.Card;
 
 class CardButton extends JButton {
     private Card trelloCard;
-    private final long creationTime;
     Logger log;
     ListPanel parentListPanel;
     private boolean oldestCardInList;
@@ -32,162 +31,28 @@ class CardButton extends JButton {
 
         this.setMargin(new Insets(0, 0, 0, 0));
 
-        this.addMouseListener(new MouseAdapter() {
-            public void mouseReleased(MouseEvent ev) {
-                if (!ev.isPopupTrigger()) {
-                    parentListPanel.toggleDropDown();
-                }
-            }
-        });
-
         this.setContentAreaFilled(false);
         this.setFocusPainted(false);
         this.setToolTipText(c.getName() + "\n" + c.getDesc());
         this.setOpaque(true);
 
-        // Contextual menu
-        JPopupMenu buttonPopUp = new JPopupMenu();
-
-        JMenu moveToListMenu = new JMenu("Move to ...");
-        for (org.trello4j.model.List listInBoard : parentListPanel.getListsInBoard()) {
-
-            // dont move to the current list
-            if (c.getIdList().equals(listInBoard.getId())) {
-                continue;
-            }
-
-            JMenuItem menuForList = new JMenuItem(listInBoard.getName());
-            MoveToListAction f = new MoveToListAction(c, listInBoard.getId());
-            menuForList.addActionListener(f);
-            moveToListMenu.add(menuForList);
-        }
-
-        JMenuItem refreshMenu = new JMenuItem("Refresh");
-        refreshMenu.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent ev) {
-                try {
-                    TrelloClient.GetInstance().updateOnce();
-                } catch(Exception ex) {
-                    log.error(ex);
-                }
-            }
-        });
-
-        JMenuItem moveToTopMenu = new JMenuItem("Move to top");
-        moveToTopMenu.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent ev) {
-                try {
-                    TrelloClient.GetInstance().moveCardToTop(trelloCard);
-                    TrelloClient.GetInstance().updateOnce();
-                } catch(Exception ex) {
-                    log.error(ex);
-                }
-            }
-        });
-
-        JMenuItem newCardMenu = new JMenuItem("New card");
-        newCardMenu.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent ev) {
-                String newCardTitle = JOptionPane.showInputDialog("New card");
-                try {
-                    TrelloClient.GetInstance().newCardToList(parentListPanel.getListId(), newCardTitle);
-                    TrelloClient.GetInstance().updateOnce();
-                } catch(Exception ex) {
-                    log.error(ex);
-                }
-            }
-        });
-
-        JMenuItem openBoardInBrowser = new JMenuItem("Open in browser");
-        openBoardInBrowser.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent ev) {
-                if(Desktop.isDesktopSupported()) {
-                    try {
-                        Desktop.getDesktop().browse(new URI("https://trello.com/c/"+ trelloCard.getId()));
-                    } catch (URISyntaxException e) {
-                        log.error(e);
-                    } catch (IOException ioe) {
-                        log.error(ioe);
-                    }
-                }
-            }
-        });
-
-        JMenuItem hideForAWhile = new JMenuItem("Hide 5min");
-        hideForAWhile.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    TrelloClient.GetInstance().stopForAWhile();
-                } catch(Exception ex) {
-                    log.info(ex);
-                }
-            }
-        });
-
-        JMenuItem exitMenu = new JMenuItem("Exit");
-        exitMenu.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e) {
-                // This might not get flushed to log:
-                log.info("Exiting per user request");
-                System.exit(0);
-            }
-        });
-
-        JMenuItem archiveCardMenu = new JMenuItem("Archive card");
-        archiveCardMenu.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e) {
-                int response = JOptionPane.showConfirmDialog(null,
-                    "Archive?", "Are you sure you want to archive " + trelloCard.getName(), JOptionPane.YES_NO_OPTION);
-
-                if (response != 0 /*YES*/) {
-                    return;
-                }
-
-                try {
-                    TrelloClient.GetInstance().archiveCard(trelloCard);
-                    TrelloClient.GetInstance().updateOnce();
-                } catch(Exception ex) {
-                    log.error(ex);
-                }
-            }
-        });
-
-        // Add menus
-        buttonPopUp.add(newCardMenu);
-        buttonPopUp.add(openBoardInBrowser);
-        buttonPopUp.add(moveToListMenu);
-        buttonPopUp.add(moveToTopMenu);
-        buttonPopUp.add(archiveCardMenu);
-        buttonPopUp.addSeparator();
-        buttonPopUp.add(hideForAWhile);
-        buttonPopUp.add(refreshMenu);
-        buttonPopUp.add(exitMenu);
-        this.setComponentPopupMenu(buttonPopUp);
-
         // The first 8 character of the card are the unix timestamp of creation
-        creationTime = Long.parseLong(this.trelloCard.getId().substring(0,8), 16);
-
-        update();
+        updateText();
     }
 
-    public Long getId() {
-        return trelloCard.getIdShort();
+    public void updateCard(Card c) {
+        this.trelloCard = c;
+        updateText();
     }
 
-    public long getCreationTime() {
-        return creationTime;
-    }
-
-    public void setOldestCard(boolean oldest) {
-        this.oldestCardInList = oldest;
-    }
-
-    void update() {
+    private void updateText() {
 
         String shortTitle;
         String title = trelloCard.getName();
-
         long unixTime = System.currentTimeMillis() / 1000L;
+
+        long creationTime;
+        creationTime = Long.parseLong(trelloCard.getId().substring(0,8), 16);
 
         int init = (int)(unixTime - creationTime);
         int days = (int)(Math.floor(init / 86400));
@@ -195,9 +60,10 @@ class CardButton extends JButton {
         int minutes = (int)Math.floor((init / 60) % 60);
         int seconds = init % 60;
 
-        // Color palete http://paletton.com/#uid=33L100kllllA7corxgSf9pO8Yui
-        if (oldestCardInList) {
-            this.setBackground(Color.YELLOW);
+        if (title.length() > 40) {
+            shortTitle = title.substring(0, 40);
+        } else {
+            shortTitle = title;
         }
 
         String titleColor = "061842";
@@ -209,21 +75,19 @@ class CardButton extends JButton {
             timeColor = "A2A838";
         }
 
-        if (title.length() > 40) {
-            shortTitle = title.substring(0, 40);
-        } else {
-            shortTitle = title;
-        }
-
         String html =  "<html><font color=\"" + titleColor + "\">" + shortTitle + "</font>"
             +  " <font color=\"" + timeColor + "\">" 
             + (days > 0 ? days + "d " : "")
             + (hours < 10 ? "0" : "") + hours + ":"
-            + (minutes < 10 ? "0" : "") + minutes + ":"
+            + (minutes < 10 ? "0" : "") + minutes + ""
             + (seconds < 10 ? "0" : "") + seconds
             + "</font></html>";
 
         this.setText(html);
+    }
+
+    public Long getId() {
+        return trelloCard.getIdShort();
     }
 }
 

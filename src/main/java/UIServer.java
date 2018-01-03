@@ -13,8 +13,16 @@ import java.util.List;
 import javax.swing.*;
 import org.trello4j.model.*;
 import java.awt.*;
-
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import org.apache.logging.log4j.*;
+import java.awt.dnd.DragSource;
+import java.util.Objects;
+
+import javax.swing.event.*;
+import java.awt.event.MouseEvent;
+import javax.swing.SwingUtilities;
 
 public class UIServer {
     static JDialog frame;
@@ -29,23 +37,31 @@ public class UIServer {
     // *************************************************************************
     public static void createAndShowGUI() {
 
-        log.debug("Created GUI on EDT? " + SwingUtilities.isEventDispatchThread());
+        log.debug("Created GUI on Event Dispatcher Thread: " + SwingUtilities.isEventDispatchThread());
 
         frame = new JDialog();
 
-        FlowLayout experimentLayout = new FlowLayout();
+        GridBagLayout experimentLayout = new GridBagLayout();
         frame.setLayout(experimentLayout);
 
         frame.setLocation(200, System.getProperty("os.name").toLowerCase().startsWith("mac") ? 25 : 0 );
         frame.setUndecorated(true);
         frame.setAlwaysOnTop(true);
         frame.setFocusableWindowState(false);
-        frame.getRootPane().setBorder(BorderFactory.createLineBorder(Color.RED));
-        frame.getContentPane().setBackground(Color.decode("0xe2e4e6"));
+
+        // Make it invisible
+        frame.getRootPane().setOpaque(false);
+        frame.getContentPane().setBackground(new Color(0, 0, 0, 0));
+        frame.setBackground(new Color(0, 0, 0, 0));
+
         frame.setType(Window.Type.UTILITY);
 
         JButton mainMenu = new MainMenuButton();
-        frame.add(mainMenu);
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.PAGE_START;
+
+        frame.add(mainMenu, c);
 
         // If you dont do this, the main thread will die and so will
         // the entire application.
@@ -65,23 +81,22 @@ public class UIServer {
         log.debug("createAndShowGUI thread ends");
     }
 
-    public static void addList(
-            final String sListId,
-            final List<Card> listOfCards,
-            List<org.trello4j.model.List> listsInBoard) {
+    static void addList( final String sListId, final List<Card> listOfCards, List<org.trello4j.model.List> listsInBoard) {
 
         log.debug("Adding list " + sListId);
 
         ListPanel existingList = getList(sListId);
-
         if (existingList == null) {
             // Add new ListPanel to the frame
-            JPanel f = new ListPanel(sListId, listOfCards, listsInBoard);
+            ListPanel f = new ListPanel(sListId, listOfCards, listsInBoard);
+            ContainterPanel cp = new ContainterPanel(sListId, listOfCards, listsInBoard);
 
             // Add ListPanel (JPanel) to main Window (JDialog)
-            frame.add(f);
-            log.info("Done adding Jpanel to the frame for list " + sListId);
+            GridBagConstraints c = new GridBagConstraints();
+            c.anchor = GridBagConstraints.PAGE_START;
+            frame.add(cp, c);
 
+            log.info("Done adding Jpanel to the frame for list " + sListId);
             frame.pack();
 
         } else {
@@ -93,34 +108,18 @@ public class UIServer {
 
     public static ListPanel getList(String sListId) {
         for(Component c : frame.getContentPane().getComponents()) {
-            if (c instanceof ListPanel) {
-                ListPanel lp = ((ListPanel)c);
-                if (lp.getListId().equals(sListId)) {
-                    return lp;
+            if (c instanceof ContainterPanel) {
+                if (((ContainterPanel)c).getListId().equals(sListId)) {
+                    return ((ContainterPanel)c).listPanel;
                 }
             }
         }
         return null;
     }
 
-    public static void updateTimes() {
-        for(Component c : frame.getContentPane().getComponents()) {
-            if (c instanceof ListPanel) {
-                ((ListPanel)c).updateTimes();
-            }
-        }
-
-        frame.pack();
-        frame.setVisible(true);
-    }
-
     public static void moveWindowTo(Point position) {
         log.info("Moving window to ... " + (int)position.getX() +","+(int)position.getY());
         frame.setLocation((int)position.getX(), (int)position.getY());
-    }
-
-    public static void clearLists() {
-        frame.getContentPane().removeAll();
     }
 
     public static void setVisible(boolean visible) {

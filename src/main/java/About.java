@@ -1,7 +1,7 @@
 /* Auto generated code, your changes will be overwritten when built by gradle */
 public class About { 
-    static final String BuiltByMachine = "alanboy"; 
-    static final String BuiltByUser = "AlanGon"; 
-    static final String DateTime = "08-16-2017 12:37:02"; 
-    static final String Version = "0.3.20170816"; 
+    static final String BuiltByMachine = "alanboy2"; 
+    static final String BuiltByUser = "alan"; 
+    static final String DateTime = "01-03-2018 01:31:45"; 
+    static final String Version = "0.3.20180103"; 
 }
