@@ -48,14 +48,14 @@ public class TrelloConfigurationWindow {
 
         try {
             for (Board b : tClient.getMyBoards()) {
-                DefaultMutableTreeNode vegetableNode = new DefaultMutableTreeNode(b.getName());
+                DefaultMutableTreeNode node = new DefaultMutableTreeNode(b.getName());
 
                 for (org.trello4j.model.List l : tClient.getListsFromBoard(b)) {
                     boolean listIsEnabled = (listsInConfig.indexOf(l.getId()) > 0);
-                    vegetableNode.add(new TRelloNode(l.getName(), l.getId(), listIsEnabled));
+                    node.add(new TRelloNode(l.getName(), l.getId(), listIsEnabled));
                 }
 
-                root.add(vegetableNode);
+                root.add(node);
             }
         }catch (Exception e) {
             System.out.println(e);

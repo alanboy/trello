@@ -16,6 +16,8 @@ import java.net.*;
 import java.io.IOException;
 import org.apache.logging.log4j.*;
 import java.util.*;
+import org.trello4j.*;
+import org.trello4j.model.*;
 
 public class ListPanel extends JList<Card> {
 
@@ -36,7 +38,6 @@ public class ListPanel extends JList<Card> {
         this.log = LogManager.getLogger();
 
         log.info("Creating new ListPanel:" + sListId);
-
 
         userModifiedCards = new HashSet<Long>();
 
@@ -242,6 +243,29 @@ public class ListPanel extends JList<Card> {
                     menuForList.addActionListener(f);
                     moveToListMenu.add(menuForList);
                 }
+
+                JMenu moveToOtherBoard = new JMenu("Other board");
+
+                try {
+                    for (Board board : TrelloClient.GetInstance().getMyBoards()) {
+
+                        JMenu boardName = new JMenu(board.getName());
+
+                        for (org.trello4j.model.List listInBoard : TrelloClient.GetInstance().getListsFromBoard(board)) {
+                            //System.out.println("    List: " + listInBoard.getName() + " - " + listInBoard.getId());
+                            JMenuItem menuForList = new JMenuItem(listInBoard.getName());
+                            MoveToListAction f = new MoveToListAction(selectedCard, listInBoard.getId());
+                            menuForList.addActionListener(f);
+                            boardName.add(menuForList);
+                        }
+
+                        moveToOtherBoard.add(boardName);
+                    }
+                } catch (Exception ex) {
+                    log.error(ex);
+                }
+
+                moveToListMenu.add(moveToOtherBoard);
 
                 JMenuItem refreshMenu = new JMenuItem("Refresh");
                 refreshMenu.addActionListener(new ActionListener(){

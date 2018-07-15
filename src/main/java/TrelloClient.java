@@ -136,28 +136,56 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         return API_KEY;
     }
 
+    private static HashMap<String,List<org.trello4j.model.List>> cachedListsInBoard = null;
+
     public List<org.trello4j.model.List> getListsFromBoard(Board board) throws Exception {
         if (!isInitialized) {
             throw new Exception("Client has not been initialized.");
         }
 
+        if (cachedListsInBoard == null) {
+            cachedListsInBoard = new HashMap<String, List<org.trello4j.model.List>>();
+        }
+
+        if (cachedListsInBoard.containsKey(board.getId())) {
+            return cachedListsInBoard.get(board.getId());
+        }
+
         List<org.trello4j.model.List> ls = trello4jClient.getListByBoard(board.getId());
+        cachedListsInBoard.put(board.getId(), ls);
 
         return ls;
     }
+
+    private static ArrayList<Board> cachedListOfMyBoards = null;
 
     public List<Board> getMyBoards() throws Exception {
         if (!isInitialized) {
             throw new Exception("Client has not been initialized.");
         }
 
-        List<Board> bs = trello4jClient.getBoardsByMember("my");
+        if (cachedListOfMyBoards != null) {
+            log.info("Re-using cachedListOfMyBoards");
+            return cachedListOfMyBoards;
+        }
 
-        if (0 == bs.size()) {
+        List<Board> bs = trello4jClient.getBoardsByMember("my");
+        cachedListOfMyBoards = new ArrayList<Board>();
+
+        for (Board b : bs) {
+            System.out.println("Board: " + b.getName() + " - " + b.getId());
+            System.out.println("iClosed: " + b.isClosed()   );
+
+            if (!b.isClosed()) {
+                cachedListOfMyBoards.add(b);
+            }
+        }
+
+        if (0 == cachedListOfMyBoards.size()) {
             log.info("you dont have access to any boards?");
         }
 
-        return bs;
+        return cachedListOfMyBoards;
     }
 
     public void stopForAWhile() throws Exception {
@@ -207,7 +235,7 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         }
 
         trello4jClient.moveCard(cCard.getId(), sListId);
-        log.info("Move card " + cCard.getId() + " to list " + sListId);
+        log.info("Moved card " + cCard.getId() + " to list " + sListId);
     }
 
     public void newCardToList(String sListId, String newCardTitle) throws Exception {
@@ -299,14 +327,14 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
     }
 
     public boolean configExist() {
-        String config = (explicitConfigLocation == null) ? 
+        String config = (explicitConfigLocation == null) ?
                             System.getProperty("user.home") + java.io.File.separator + "trello.json"
                             : explicitConfigLocation;
 
         boolean bFoundConfig = new File(config).isFile();
 
         log.info("Configuration JSON"
-                    + (bFoundConfig ? "" : " NOT ") 
+                    + (bFoundConfig ? "" : " NOT ")
                     +"found at : " + config);
 
         return bFoundConfig;
@@ -500,10 +528,10 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
            versionInGithub = HttpClient.Request(verUrl);
 
         } catch (NullPointerException npe) {
-            log.error("Unable to download new version:" + npe);
+            log.error("Unable to download new version json:" + npe);
             return;
         } catch (Exception e) {
-            log.error("Unable to download new version:" + e);
+            log.error("Unable to download new version json:" + e);
             return;
         }
 
@@ -519,15 +547,15 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         log.info("Current running directory: " + runningBinPath);
 
         try {
-            HttpClient.RequestBinToFile(binUrl, "latest-trello.jar");
+            HttpClient.RequestBinToFile(binUrl, "trello-latest.jar");
 
-            log.info("Update successful, saved to latest-trello.jar.");
+            log.info("Update successful, saved to trello-latest.jar.");
 
         } catch (NullPointerException npe) {
-            log.error("Unable to download new version:" + npe);
+            log.error("Unable to download new version jar:" + npe);
 
         } catch (Exception e) {
-            log.error("Unable to download new version:" + e);
+            log.error("Unable to download new version jar:" + e);
         }
 
     }

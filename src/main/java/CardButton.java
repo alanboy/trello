@@ -70,13 +70,16 @@ class CardButton extends JButton {
             timeColor = "A2A838";
         }
 
-        String html =  "<html><font color=\"" + titleColor + "\">" + shortTitle + "</font>"
+        String html =  "<html><font color=\"" + titleColor + "\">" + title + "</font>"
             +  " <font color=\"" + timeColor + "\">" 
             + (days > 0 ? days + "d " : "")
             + (hours < 10 ? "0" : "") + hours + ":"
             + (minutes < 10 ? "0" : "") + minutes + ":"
             + (seconds < 10 ? "0" : "") + seconds
-            + "</font></html>";
+            + "</font>"
+            + "<br>"
+            + trelloCard.getDesc()
+            + "</html>";
 
         this.setText(html);
     }
