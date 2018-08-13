@@ -35,9 +35,6 @@ class CardButton extends JButton {
         this.setToolTipText(c.getName() + "\n" + c.getDesc());
         this.setOpaque(true);
 
-        // this works
-        // this.setPreferredSize(new Dimension(500, 50));
-
         updateText();
 
         Init(this);
@@ -57,9 +54,7 @@ class CardButton extends JButton {
         while(true) {
             try {
                 Thread.sleep(ONE_SECOND * 5);
-                System.out.println("------------ static refresh ---------------------------");
                 for(CardButton card : buttonsInApplication) {
-                    //System.out.println("  ->" + card.trelloCard.getName().substring(0, 10) );
                     card.updateText();
                 }
             } catch (InterruptedException ie) {
@@ -114,11 +109,9 @@ class CardButton extends JButton {
 
         String html = "";
         if (cardOpened) {
-
-            //this.setSize(new Dimension(500, 50));
             this.setPreferredSize(new Dimension(500, 50));
 
-            html =  "<html><font color=\"" + titleColor + "\">OPENED" + trelloCard.getName() + "</font>"
+            html =  "<html><font color=\"" + titleColor + "\">" + trelloCard.getName() + "</font>"
                 +  " <font color=\"" + timeColor + "\">"
                 + (days > 0 ? days + "d " : "")
                 + (hours < 10 ? "0" : "") + hours + ":"

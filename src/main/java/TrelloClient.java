@@ -255,7 +255,6 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
 
         trello4jClient.addCommentToCard(sCardId, text);
         log.info("Added comment");
-
     }
 
     public void initialize(String configPath) throws Exception {

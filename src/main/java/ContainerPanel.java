@@ -85,8 +85,6 @@ class ContainerPanel extends JPanel {
         // top card topCardButton
         if (!isDroppedDown) {
             topCardButton.updateCard(listPanel.listModel.elementAt(0));
-        } else {
-            //listPanel.updateTimersOnCards();
         }
 
         topCardButton.setVisible(!isDroppedDown);
