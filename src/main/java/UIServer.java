@@ -1,31 +1,30 @@
+
 import com.google.gson.*;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import org.trello4j.*;
+import java.awt.*;
 import java.awt.Color;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DragSource;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import javax.swing.*;
-import org.trello4j.model.*;
-import java.awt.*;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import org.apache.logging.log4j.*;
-import java.awt.dnd.DragSource;
+import java.util.Map;
 import java.util.Objects;
-
-import javax.swing.event.*;
-import java.awt.event.MouseEvent;
+import javax.swing.*;
 import javax.swing.SwingUtilities;
+import javax.swing.event.*;
+import org.apache.logging.log4j.*;
+import org.trello4j.*;
+import org.trello4j.model.*;
 
 public class UIServer {
-    static JDialog frame;
+    public static JDialog frame;
     static Logger log;
 
     static {
@@ -36,7 +35,6 @@ public class UIServer {
     // *        Setting up the frame
     // *************************************************************************
     public static void createAndShowGUI() {
-
         log.debug("Created GUI on Event Dispatcher Thread: " + SwingUtilities.isEventDispatchThread());
 
         frame = new JDialog();
@@ -82,13 +80,11 @@ public class UIServer {
     }
 
     static void addList(final String sListId, final List<Card> listOfCards, List<org.trello4j.model.List> listsInBoard) {
-
         log.debug("Adding list " + sListId);
-
-        ListPanel existingList = getList(sListId);
+        ListPanel existingList = getListPanelForList(sListId);
         if (existingList == null) {
             // Add new ListPanel to the frame
-            ContainterPanel cp = new ContainterPanel(sListId, listOfCards, listsInBoard);
+            ContainerPanel cp = new ContainerPanel(sListId, listOfCards, listsInBoard);
 
             // Add ListPanel (JPanel) to main Window (JDialog)
             GridBagConstraints c = new GridBagConstraints();
@@ -105,11 +101,11 @@ public class UIServer {
         }
     }
 
-    public static ListPanel getList(String sListId) {
+    public static ListPanel getListPanelForList(String sListId) {
         for(Component c : frame.getContentPane().getComponents()) {
-            if (c instanceof ContainterPanel) {
-                if (((ContainterPanel)c).getListId().equals(sListId)) {
-                    return ((ContainterPanel)c).getListPanel();
+            if (c instanceof ContainerPanel) {
+                if (((ContainerPanel)c).getListId().equals(sListId)) {
+                    return ((ContainerPanel)c).getListPanel();
                 }
             }
         }
@@ -117,7 +113,6 @@ public class UIServer {
     }
 
     public static void moveWindowTo(Point position) {
-        log.info("Moving window to ... " + (int)position.getX() +","+(int)position.getY());
         frame.setLocation((int)position.getX(), (int)position.getY());
     }
 

@@ -1,30 +1,32 @@
-import org.trello4j.model.Card;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.List;
-import java.util.HashMap;
-import java.util.ArrayList;
-import javax.swing.event.*;
-import java.awt.event.MouseEvent;
-import javax.swing.SwingUtilities;
-import java.net.URI;
-import java.net.*;
 import java.io.IOException;
+import java.net.*;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import javax.swing.*;
+import javax.swing.SwingUtilities;
+import javax.swing.event.*;
 import org.apache.logging.log4j.*;
+import org.trello4j.model.Card;
 
-class ContainterPanel extends JPanel {
+class ContainerPanel extends JPanel {
 
-    private String listId;
-    private ListPanel listPanel;
-    private CardButton button;
+    private CardButton topCardButton;
     private JButton minimizeList;
+    private ListPanel listPanel;
+    private String listId;
     private boolean isDroppedDown;
+    private static final int ONE_SECOND = 1000;
 
-    ContainterPanel(final String sListId, final List<Card> cards, List<org.trello4j.model.List> listsInBoard) {
+    // Wraps the ListPanel which contains the cards
+    // It also contains the top button and the minimize button
+    ContainerPanel(final String sListId, final List<Card> cards, List<org.trello4j.model.List> listsInBoard) {
         super();
 
         listId = sListId;
@@ -37,20 +39,20 @@ class ContainterPanel extends JPanel {
 
         if (listPanel.listModel.size() > 0) {
             Card topcard = listPanel.listModel.elementAt(0);
-            button = new CardButton(topcard);
-            button.setLayout(new BoxLayout(button, BoxLayout.Y_AXIS));
-            button.setAlignmentX(Component.CENTER_ALIGNMENT);
-            button.setVisible(!isDroppedDown);
-            button.addActionListener(new ActionListener() {
+            topCardButton = new CardButton(topcard);
+            topCardButton.setLayout(new BoxLayout(topCardButton, BoxLayout.Y_AXIS));
+            topCardButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+            topCardButton.setVisible(!isDroppedDown);
+            topCardButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent ev) {
                     isDroppedDown = true;
                     updateVisibilityOfElements  ();
                 }
             });
-            this.add(button);
+            this.add(topCardButton);
         }
 
-        minimizeList = new JButton("^^^^^^^^");
+        minimizeList = new JButton("^^^ close ^^^^");
         minimizeList.setVisible(isDroppedDown);
         minimizeList.setLayout(new BoxLayout(minimizeList, BoxLayout.Y_AXIS));
         minimizeList.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -62,25 +64,37 @@ class ContainterPanel extends JPanel {
         });
 
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        this.add(minimizeList);
         this.add(listPanel);
 
-        this.add(minimizeList);
+        new Thread(() -> updateTimersOnCards()).start();
+    }
+
+    private void updateTimersOnCards() {
+        while(true) {
+            try {
+                Thread.sleep(ONE_SECOND);
+                updateVisibilityOfElements();
+            } catch (InterruptedException ie) {
+
+            }
+        }
     }
 
     private void updateVisibilityOfElements() {
-
-        // top card button
+        // top card topCardButton
         if (!isDroppedDown) {
-            button.updateCard(listPanel.listModel.elementAt(0));
+            topCardButton.updateCard(listPanel.listModel.elementAt(0));
+        } else {
+            //listPanel.updateTimersOnCards();
         }
-        button.setVisible(!isDroppedDown);
+
+        topCardButton.setVisible(!isDroppedDown);
+        minimizeList.setVisible(isDroppedDown);
 
         //  list of cards
         listPanel.setVisible(isDroppedDown);
         listPanel.getParent().repaint();
-
-        // show the minime button
-        minimizeList.setVisible(isDroppedDown);
 
         JDialog topFrame = (JDialog)SwingUtilities.windowForComponent(listPanel);
         if (topFrame != null)

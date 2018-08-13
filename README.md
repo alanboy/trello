@@ -72,19 +72,20 @@ put a bp in a funtion
                   |         |
                   \---------/
                         |
-    /---------\   /---------\   /----------\   /----------\
-    |         |   |         |   |          |   |          |
-    |TrelloCmd|   |UIServer |   |Container |   |ListPanel |    /------------\
-    | *       |   |  has-a  |   | Panel    |   |  is-a    |    |            |
-    |         |<->| JDialog |<->|   is-a   |<->|   JList  | <->| CardButton |
-    |         |   |         |   | JPanel   |   |          |    |    is-a    |
-    |         |   |         |   |          |   |          |    |    JButton |
-    |         |   |         |   |          |   |          |    \------------/
-    \---------/   \---------/   \----------/   \----------/    
+    /---------\   /---------\   /--------------\   /----------\
+    |         |   |         |   |              |   |          |
+    |TrelloCmd|   |UIServer |   |ContainerPanel|   |ListPanel |                     /------------\
+    | *       |   |  has-a  |   |   is-a       |   |  is-a    |                     |            |
+    |         |<->| JDialog |<->|  JPanel      |<->|   JList  |<-- rendered via --->| CardButton |
+    |         |   |         |   |              |   |          |                     |    is-a    |
+    |         |   |         |   |              |   |          |                     |    JButton |
+    |         |   |         |   |              |   |          |                     |            |
+    |         |   |         |   |              |   |          |                     \------------/
+    \---------/   \---------/   \--------------/   \----------/
           |            |
     /-------------------------\
     |                         |
-    |TrelloClient             | // trello client is the only thread waking up every second
+    |TrelloClient ***         |
     |                         |
     \-------------------------/
             |
@@ -96,6 +97,7 @@ put a bp in a funtion
 
     * Application entry point
     ** Not implemented
+    *** Wakes up every n seconds
 
     /-------------------------------------\
     | JDialog                             |

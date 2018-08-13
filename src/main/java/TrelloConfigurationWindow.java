@@ -48,11 +48,16 @@ public class TrelloConfigurationWindow {
 
         try {
             for (Board b : tClient.getMyBoards()) {
+
+                if (b.isClosed()) {
+                    continue;
+                }
+
                 DefaultMutableTreeNode node = new DefaultMutableTreeNode(b.getName());
 
                 for (org.trello4j.model.List l : tClient.getListsFromBoard(b)) {
                     boolean listIsEnabled = (listsInConfig.indexOf(l.getId()) > 0);
-                    node.add(new TRelloNode(l.getName(), l.getId(), listIsEnabled));
+                    node.add(new TrelloNode(l.getName(), l.getId(), listIsEnabled));
                 }
 
                 root.add(node);
@@ -71,7 +76,7 @@ public class TrelloConfigurationWindow {
         tree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent event) {
-                TRelloNode tn = (TRelloNode) tree.getLastSelectedPathComponent();
+                TrelloNode tn = (TrelloNode) tree.getLastSelectedPathComponent();
 
                 TrelloClient tClient = TrelloClient.GetInstance();
                 if (tn.isSelected()) {
@@ -94,11 +99,11 @@ public class TrelloConfigurationWindow {
     }
 }
 
-class TRelloNode extends DefaultMutableTreeNode {
+class TrelloNode extends DefaultMutableTreeNode {
     public boolean selected;
     public String id;
 
-    public TRelloNode(String title, String listId, boolean selected) {
+    public TrelloNode(String title, String listId, boolean selected) {
         super(title);
         this.id = listId;
         this.selected = selected;
@@ -120,8 +125,8 @@ class TRelloNode extends DefaultMutableTreeNode {
         super.getTreeCellRendererComponent(tree, value, sel, exp, leaf, row, hasFocus);
 
         // Assuming you have a tree of Strings
-        if (value != null && value instanceof TRelloNode) {
-            TRelloNode emailMessage = (TRelloNode) value;
+        if (value != null && value instanceof TrelloNode) {
+            TrelloNode emailMessage = (TrelloNode) value;
 
             if (emailMessage.isSelected())
                 setForeground(new Color(253, 57 ,115));

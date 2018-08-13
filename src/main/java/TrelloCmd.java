@@ -28,7 +28,7 @@ public class TrelloCmd {
     // know about trello.com
     final static String url = "https://trello.com/1/authorize?key="+
                             TrelloClient.getKey()
-                            +"&expiration=90days&name=trelloc&response_type=token&scope=read,write,account";
+                            +"&expiration=never&name=trelloc&response_type=token&scope=read,write,account";
 
     static Logger log;
 

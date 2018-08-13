@@ -173,8 +173,7 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         cachedListOfMyBoards = new ArrayList<Board>();
 
         for (Board b : bs) {
-            System.out.println("Board: " + b.getName() + " - " + b.getId());
-            System.out.println("iClosed: " + b.isClosed()   );
+            log.info("Board: " + b.getName() + " - " + b.getId());
 
             if (!b.isClosed()) {
                 cachedListOfMyBoards.add(b);
@@ -246,6 +245,16 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         Card c = trello4jClient.createCard(sListId, newCardTitle, null);
         log.info("New card in list " + sListId
                    + " " + ((null == c) ? "Failed." : "Succeded"));
+
+    }
+
+    public void newCommentToCard(String sCardId, String text) throws Exception {
+        if (!isInitialized) {
+            throw new Exception("Client has not been initialized.");
+        }
+
+        trello4jClient.addCommentToCard(sCardId, text);
+        log.info("Added comment");
 
     }
 
