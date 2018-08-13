@@ -1,31 +1,39 @@
-import org.trello4j.model.Card;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.List;
-import java.util.HashMap;
-import java.util.ArrayList;
-import javax.swing.event.*;
-import java.awt.event.MouseEvent;
-import javax.swing.SwingUtilities;
-import java.net.URI;
-import java.net.*;
 import java.io.IOException;
-import org.apache.logging.log4j.*;
+import java.net.*;
+import java.net.URI;
 import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import javax.swing.*;
+import javax.swing.SwingUtilities;
+import javax.swing.event.*;
+import org.apache.logging.log4j.*;
+import org.trello4j.*;
+import org.trello4j.model.*;
+import org.trello4j.model.Card;
 
+// Has a DefaultListModel<Cards> that holds all the cards that are to be shown
+// You can then add custom actions to DefaultListModel<>
+//
+//     ListPanelCellRenderer
+//     ListPanelMouseAdapter
+//
 public class ListPanel extends JList<Card> {
 
     private HashMap<String, Color> cardColors = null;
     private HashSet<Long> userModifiedCards = null;
     private List<Card> cards;
-    private List<org.trello4j.model.List>  listsInBoard;
+    private List<org.trello4j.model.List> listsInBoard;
     private Logger log;
     private final String sListId;
     public DefaultListModel<Card> listModel;
+    protected HashMap<String, CardButton> cardButtons;
 
     ListPanel(final String sListId, final List<Card> cards, List<org.trello4j.model.List> listsInBoard) {
         super();
@@ -34,9 +42,9 @@ public class ListPanel extends JList<Card> {
         this.cards = cards;
         this.listsInBoard = listsInBoard;
         this.log = LogManager.getLogger();
+        this.cardButtons = new HashMap<String, CardButton> ();
 
         log.info("Creating new ListPanel:" + sListId);
-
 
         userModifiedCards = new HashSet<Long>();
 
@@ -53,7 +61,6 @@ public class ListPanel extends JList<Card> {
     }
 
     private boolean syncLocalPositionChangesToServer() {
-
         boolean changesMade = false;
 
         // O(n^2) alg, change this if it becomes a problem:
@@ -84,7 +91,6 @@ public class ListPanel extends JList<Card> {
     }
 
     public void update() {
-
         log.info("Updating ListPanel");
 
         // In case some of the local cards have different position, update server
@@ -157,7 +163,7 @@ public class ListPanel extends JList<Card> {
         update();
     }
 
-    class CardComparable implements Comparable<CardComparable>{
+    class CardComparable implements Comparable<CardComparable> {
         public Card trelloCard;
         public Long creationTime;
 
@@ -172,22 +178,22 @@ public class ListPanel extends JList<Card> {
     }
 
     class ListPanelCellRenderer implements ListCellRenderer {
-        private HashMap<String, CardButton> cards;
+        private ListPanel listPanelRef;
 
         public ListPanelCellRenderer(ListPanel listPanel) {
-            cards = new HashMap<String, CardButton> ();
+            listPanelRef = listPanel;
         }
 
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-
             Card trelloCard = (Card)value;
 
-            if (!cards.containsKey(trelloCard.getId())) {
+            if (!listPanelRef.cardButtons.containsKey(trelloCard.getId())) {
                 CardButton cardButton = new CardButton(trelloCard);
-                cards.put(trelloCard.getId(), cardButton);
+                System.out.println("Created a new card button = " + cardButton.hashCode());
+                listPanelRef.cardButtons.put(trelloCard.getId(), cardButton);
             }
 
-            CardButton cardButton = cards.get(trelloCard.getId());
+            CardButton cardButton = listPanelRef.cardButtons.get(trelloCard.getId());
 
             if (cardColors.containsKey(trelloCard.getId())) {
                 cardButton.setBackground(cardColors.get(trelloCard.getId()));
@@ -209,10 +215,33 @@ public class ListPanel extends JList<Card> {
         }
 
         @Override
+        public void mouseClicked(MouseEvent e) {
+            if (!SwingUtilities.isLeftMouseButton(e)) {
+                return;
+            }
+
+            if (e.getClickCount() != 2) {
+                return;
+            }
+
+            System.out.println("Double click");
+            Card selectedCard = myListModel.get(myList.locationToIndex(e.getPoint()));
+
+            // get the cardButton
+            if (myList.cardButtons.containsKey(selectedCard.getId())) {
+                CardButton cardButton = myList.cardButtons.get(selectedCard.getId());
+                cardButton.setOpened(!cardButton.getOpened());
+                cardButton.updateText();
+
+                myList.update();
+            }
+        }
+
+        @Override
         public void mousePressed(MouseEvent e) {
             if (SwingUtilities.isLeftMouseButton(e)) {
                 if (myList.getSelectedIndex() >= 0) {
-                    Card clickedEl = myListModel.get( myList.getSelectedIndex());
+                    Card clickedEl = myListModel.get(myList.getSelectedIndex());
                     dragSourceIndex = myList.getSelectedIndex();
                     mouseDragging = true;
                 }
@@ -243,6 +272,29 @@ public class ListPanel extends JList<Card> {
                     moveToListMenu.add(menuForList);
                 }
 
+                // Move to other boards, super slow!!
+                // JMenu moveToOtherBoard = new JMenu("Other board");
+
+                // try {
+                //     for (Board board : TrelloClient.GetInstance().getMyBoards()) {
+
+                //         JMenu boardName = new JMenu(board.getName());
+
+                //         for (org.trello4j.model.List listInBoard : TrelloClient.GetInstance().getListsFromBoard(board)) {
+                //             JMenuItem menuForList = new JMenuItem(listInBoard.getName());
+                //             MoveToListAction f = new MoveToListAction(selectedCard, listInBoard.getId());
+                //             menuForList.addActionListener(f);
+                //             boardName.add(menuForList);
+                //         }
+
+                //         moveToOtherBoard.add(boardName);
+                //     }
+                // } catch (Exception ex) {
+                //     log.error(ex);
+                // }
+
+                // moveToListMenu.add(moveToOtherBoard);
+
                 JMenuItem refreshMenu = new JMenuItem("Refresh");
                 refreshMenu.addActionListener(new ActionListener(){
                     public void actionPerformed(ActionEvent ev) {
@@ -254,11 +306,13 @@ public class ListPanel extends JList<Card> {
                     }
                 });
 
-                JMenuItem moveToTopMenu = new JMenuItem("Move to top");
+                JMenuItem moveToTopMenu = new JMenuItem("Add comment");
                 moveToTopMenu.addActionListener(new ActionListener(){
                     public void actionPerformed(ActionEvent ev) {
+                        String response = JOptionPane.showInputDialog("Whats the comment?");
+
                         try {
-                            TrelloClient.GetInstance().moveCardToTop(selectedCard);
+                            TrelloClient.GetInstance().newCommentToCard(selectedCard.getId(), response);
                             TrelloClient.GetInstance().updateOnce();
                         } catch(Exception ex) {
                             log.error(ex);
@@ -385,7 +439,7 @@ public class ListPanel extends JList<Card> {
         }
     }
 
-    class MoveToListAction implements ActionListener{
+    class MoveToListAction implements ActionListener {
         private String sListId;
         private Card cCard;
 
