@@ -189,7 +189,6 @@ public class ListPanel extends JList<Card> {
 
             if (!listPanelRef.cardButtons.containsKey(trelloCard.getId())) {
                 CardButton cardButton = new CardButton(trelloCard);
-                System.out.println("Created a new card button = " + cardButton.hashCode());
                 listPanelRef.cardButtons.put(trelloCard.getId(), cardButton);
             }
 
@@ -224,10 +223,8 @@ public class ListPanel extends JList<Card> {
                 return;
             }
 
-            System.out.println("Double click");
             Card selectedCard = myListModel.get(myList.locationToIndex(e.getPoint()));
 
-            // get the cardButton
             if (myList.cardButtons.containsKey(selectedCard.getId())) {
                 CardButton cardButton = myList.cardButtons.get(selectedCard.getId());
                 cardButton.setOpened(!cardButton.getOpened());
@@ -252,154 +249,166 @@ public class ListPanel extends JList<Card> {
         public void mouseReleased(MouseEvent e) {
             mouseDragging = false;
 
-            if (e.isPopupTrigger()) {
-                Card selectedCard = myListModel.get(myList.locationToIndex(e.getPoint()));
+            if (!e.isPopupTrigger()) {
+                return;
+            }
 
-                // Create contextual menu
-                JPopupMenu buttonPopUp = new JPopupMenu();
+            Card selectedCard = myListModel.get(myList.locationToIndex(e.getPoint()));
 
-                JMenu moveToListMenu = new JMenu("Move to ...");
-                for (org.trello4j.model.List listInBoard : myList.getListsInBoard()) {
+            // Create contextual menu
+            JPopupMenu buttonPopUp = new JPopupMenu();
 
-                    // dont move to the current list
-                    if (selectedCard.getIdList().equals(listInBoard.getId())) {
-                        continue;
-                    }
+            JMenu moveToListMenu = new JMenu("Move to ...");
+            for (org.trello4j.model.List listInBoard : myList.getListsInBoard()) {
 
-                    JMenuItem menuForList = new JMenuItem(listInBoard.getName());
-                    MoveToListAction f = new MoveToListAction(selectedCard, listInBoard.getId());
-                    menuForList.addActionListener(f);
-                    moveToListMenu.add(menuForList);
+                // dont move to the current list
+                if (selectedCard.getIdList().equals(listInBoard.getId())) {
+                    continue;
                 }
 
-                // Move to other boards, super slow!!
-                // JMenu moveToOtherBoard = new JMenu("Other board");
-
-                // try {
-                //     for (Board board : TrelloClient.GetInstance().getMyBoards()) {
-
-                //         JMenu boardName = new JMenu(board.getName());
-
-                //         for (org.trello4j.model.List listInBoard : TrelloClient.GetInstance().getListsFromBoard(board)) {
-                //             JMenuItem menuForList = new JMenuItem(listInBoard.getName());
-                //             MoveToListAction f = new MoveToListAction(selectedCard, listInBoard.getId());
-                //             menuForList.addActionListener(f);
-                //             boardName.add(menuForList);
-                //         }
-
-                //         moveToOtherBoard.add(boardName);
-                //     }
-                // } catch (Exception ex) {
-                //     log.error(ex);
-                // }
-
-                // moveToListMenu.add(moveToOtherBoard);
-
-                JMenuItem refreshMenu = new JMenuItem("Refresh");
-                refreshMenu.addActionListener(new ActionListener(){
-                    public void actionPerformed(ActionEvent ev) {
-                        try {
-                            TrelloClient.GetInstance().updateOnce();
-                        } catch(Exception ex) {
-                            log.error(ex);
-                        }
-                    }
-                });
-
-                JMenuItem moveToTopMenu = new JMenuItem("Add comment");
-                moveToTopMenu.addActionListener(new ActionListener(){
-                    public void actionPerformed(ActionEvent ev) {
-                        String response = JOptionPane.showInputDialog("Whats the comment?");
-
-                        try {
-                            TrelloClient.GetInstance().newCommentToCard(selectedCard.getId(), response);
-                            TrelloClient.GetInstance().updateOnce();
-                        } catch(Exception ex) {
-                            log.error(ex);
-                        }
-                    }
-                });
-
-                JMenuItem newCardMenu = new JMenuItem("New card");
-                newCardMenu.addActionListener(new ActionListener(){
-                    public void actionPerformed(ActionEvent ev) {
-                        String newCardTitle = JOptionPane.showInputDialog("New card");
-                        try {
-                            TrelloClient.GetInstance().newCardToList(sListId, newCardTitle);
-                            TrelloClient.GetInstance().updateOnce();
-                        } catch(Exception ex) {
-                            log.error(ex);
-                        }
-                    }
-                });
-
-                JMenuItem openBoardInBrowser = new JMenuItem("Open in browser");
-                openBoardInBrowser.addActionListener(new ActionListener(){
-                    public void actionPerformed(ActionEvent ev) {
-                        if(Desktop.isDesktopSupported()) {
-                            try {
-                                Desktop.getDesktop().browse(new URI("https://trello.com/c/"+ selectedCard.getId()));
-                            } catch (URISyntaxException e) {
-                                log.error(e);
-                            } catch (IOException ioe) {
-                                log.error(ioe);
-                            }
-                        }
-                    }
-                });
-
-                JMenuItem hideForAWhile = new JMenuItem("Hide 5min");
-                hideForAWhile.addActionListener(new ActionListener(){
-                    public void actionPerformed(ActionEvent e) {
-                        try {
-                            TrelloClient.GetInstance().stopForAWhile();
-                        } catch(Exception ex) {
-                            log.info(ex);
-                        }
-                    }
-                });
-
-                JMenuItem exitMenu = new JMenuItem("Exit");
-                exitMenu.addActionListener(new ActionListener(){
-                    public void actionPerformed(ActionEvent e) {
-                        // This might not get flushed to log:
-                        log.info("Exiting per user request");
-                        System.exit(0);
-                    }
-                });
-
-                JMenuItem archiveCardMenu = new JMenuItem("Archive card");
-                archiveCardMenu.addActionListener(new ActionListener(){
-                    public void actionPerformed(ActionEvent e) {
-                        int response = JOptionPane.showConfirmDialog(null, "Archive?", "Are you sure you want to archive " + selectedCard.getName(), JOptionPane.YES_NO_OPTION);
-
-                        if (response != 0 /*YES*/) {
-                            return;
-                        }
-
-                        try {
-                            TrelloClient.GetInstance().archiveCard(selectedCard);
-                            TrelloClient.GetInstance().updateOnce();
-                        } catch(Exception ex) {
-                            log.error(ex);
-                        }
-                    }
-                });
-
-                // Add menus
-                buttonPopUp.add(newCardMenu);
-                buttonPopUp.add(openBoardInBrowser);
-                buttonPopUp.add(moveToListMenu);
-                buttonPopUp.add(moveToTopMenu);
-                buttonPopUp.add(archiveCardMenu);
-                buttonPopUp.addSeparator();
-                buttonPopUp.add(hideForAWhile);
-                buttonPopUp.add(refreshMenu);
-                buttonPopUp.add(exitMenu);
-
-                myList.setSelectedIndex(myList.locationToIndex(e.getPoint())); //select the item
-                buttonPopUp.show(myList, e.getX(), e.getY()); //and show the menu
+                JMenuItem menuForList = new JMenuItem(listInBoard.getName());
+                MoveToListAction f = new MoveToListAction(selectedCard, listInBoard.getId());
+                menuForList.addActionListener(f);
+                moveToListMenu.add(menuForList);
             }
+
+            // Move to other boards, super slow!!
+            // JMenu moveToOtherBoard = new JMenu("Other board");
+
+            // try {
+            //     for (Board board : TrelloClient.GetInstance().getMyBoards()) {
+
+            //         JMenu boardName = new JMenu(board.getName());
+
+            //         for (org.trello4j.model.List listInBoard : TrelloClient.GetInstance().getListsFromBoard(board)) {
+            //             JMenuItem menuForList = new JMenuItem(listInBoard.getName());
+            //             MoveToListAction f = new MoveToListAction(selectedCard, listInBoard.getId());
+            //             menuForList.addActionListener(f);
+            //             boardName.add(menuForList);
+            //         }
+
+            //         moveToOtherBoard.add(boardName);
+            //     }
+            // } catch (Exception ex) {
+            //     log.error(ex);
+            // }
+
+            // moveToListMenu.add(moveToOtherBoard);
+
+            JMenuItem refreshMenu = new JMenuItem("Refresh");
+            refreshMenu.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent ev) {
+                    try {
+                        TrelloClient.GetInstance().updateOnce();
+                    } catch(Exception ex) {
+                        log.error(ex);
+                    }
+                }
+            });
+
+            JMenuItem addCommentMenu = new JMenuItem("Add comment");
+            addCommentMenu.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent ev) {
+                    String response = JOptionPane.showInputDialog("Whats the comment?");
+
+                    try {
+                        TrelloClient.GetInstance().newCommentToCard(selectedCard.getId(), response);
+                        TrelloClient.GetInstance().updateOnce();
+                    } catch(Exception ex) {
+                        log.error(ex);
+                    }
+                }
+            });
+
+            JMenuItem copyToClipboardMenu = new JMenuItem("Copy to clipboard");
+            copyToClipboardMenu.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent ev) {
+
+                    CardButton cardButton = myList.cardButtons.get(selectedCard.getId());
+                    cardButton.copyContentsToClipboard();
+                }
+            });
+
+            JMenuItem newCardMenu = new JMenuItem("New card");
+            newCardMenu.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent ev) {
+                    String newCardTitle = JOptionPane.showInputDialog("New card");
+                    try {
+                        TrelloClient.GetInstance().newCardToList(sListId, newCardTitle);
+                        TrelloClient.GetInstance().updateOnce();
+                    } catch(Exception ex) {
+                        log.error(ex);
+                    }
+                }
+            });
+
+            JMenuItem openBoardInBrowser = new JMenuItem("Open in browser");
+            openBoardInBrowser.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent ev) {
+                    if(Desktop.isDesktopSupported()) {
+                        try {
+                            Desktop.getDesktop().browse(new URI("https://trello.com/c/"+ selectedCard.getId()));
+                        } catch (URISyntaxException e) {
+                            log.error(e);
+                        } catch (IOException ioe) {
+                            log.error(ioe);
+                        }
+                    }
+                }
+            });
+
+            JMenuItem hideForAWhile = new JMenuItem("Hide 5min");
+            hideForAWhile.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        TrelloClient.GetInstance().stopForAWhile();
+                    } catch(Exception ex) {
+                        log.info(ex);
+                    }
+                }
+            });
+
+            JMenuItem exitMenu = new JMenuItem("Exit");
+            exitMenu.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent e) {
+                    // This might not get flushed to log:
+                    log.info("Exiting per user request");
+                    System.exit(0);
+                }
+            });
+
+            JMenuItem archiveCardMenu = new JMenuItem("Archive card");
+            archiveCardMenu.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent e) {
+                    int response = JOptionPane.showConfirmDialog(null, "Archive?", "Are you sure you want to archive " + selectedCard.getName(), JOptionPane.YES_NO_OPTION);
+
+                    if (response != 0 /*YES*/) {
+                        return;
+                    }
+
+                    try {
+                        TrelloClient.GetInstance().archiveCard(selectedCard);
+                        TrelloClient.GetInstance().updateOnce();
+                    } catch(Exception ex) {
+                        log.error(ex);
+                    }
+                }
+            });
+
+            // Add menus
+            buttonPopUp.add(newCardMenu);
+            buttonPopUp.add(openBoardInBrowser);
+            buttonPopUp.add(moveToListMenu);
+            buttonPopUp.add(addCommentMenu);
+            buttonPopUp.add(copyToClipboardMenu);
+            buttonPopUp.add(archiveCardMenu);
+            buttonPopUp.addSeparator();
+            buttonPopUp.add(hideForAWhile);
+            buttonPopUp.add(refreshMenu);
+            buttonPopUp.add(exitMenu);
+
+            myList.setSelectedIndex(myList.locationToIndex(e.getPoint())); //select the item
+            buttonPopUp.show(myList, e.getX(), e.getY()); //and show the menu
         }
 
         @Override

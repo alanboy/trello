@@ -218,6 +218,23 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         trello4jClient.moveToTop(c.getId());
     }
 
+    public ArrayList<String> getComments(Card c) {
+        if (!isInitialized) {
+           return null;
+        }
+
+        ArrayList<String> comments = new ArrayList<String>();
+        List<Action> allActions = trello4jClient.getActionsByCard(c.getId());
+        for (Action action : allActions) {
+            if (!action.getType().equals("commentCard")) {
+                continue;
+            }
+
+            comments.add(action.getData().getText());
+        }
+        return comments;
+    }
+
     public void moveCardToPos(Card c, double pos) {
         if (!isInitialized) {
            return;

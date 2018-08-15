@@ -1,6 +1,8 @@
 
 import java.awt.*;
 import java.awt.Desktop;
+import java.awt.Toolkit;
+import java.awt.datatransfer.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -14,13 +16,14 @@ import org.trello4j.model.Card;
 import java.util.ArrayList;
 
 class CardButton extends JButton {
+    private ArrayList<String> comments = null;
     private Card trelloCard;
     private Logger log;
     private boolean cardOpened = false;
-    private static final int ONE_SECOND = 1000;
+    private boolean commentsLoaded = false;
     private static ArrayList<CardButton> buttonsInApplication;
     private static boolean Instance = false;
-    static int foo = 0;
+    private static final int ONE_SECOND = 1000;
 
     CardButton(Card c) {
         this.trelloCard = c;
@@ -58,7 +61,6 @@ class CardButton extends JButton {
                     card.updateText();
                 }
             } catch (InterruptedException ie) {
-                System.out.println("exception");
             }
         }
     }
@@ -70,11 +72,23 @@ class CardButton extends JButton {
 
     public void setOpened(boolean opened) {
         cardOpened = opened;
-        System.out.println(this.hashCode()  + "is now opened= " + cardOpened);
     }
 
     public boolean getOpened() {
         return cardOpened;
+    }
+
+    public void copyContentsToClipboard() {
+
+        String text = trelloCard.getName() + " " + trelloCard.getDesc();
+
+        for (String comment : comments) {
+            text += comment + "; ";
+        }
+
+        StringSelection selection = new StringSelection(text);
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(selection, selection);
     }
 
     public void updateText() {
@@ -91,7 +105,7 @@ class CardButton extends JButton {
         int minutes = (int)Math.floor((init / 60) % 60);
         int seconds = init % 60;
 
-        String description = ""; //trelloCard.getDesc();
+        String description = "";
         if (title.length() > 40) {
             shortTitle = title.substring(0, 40);
         } else {
@@ -107,6 +121,11 @@ class CardButton extends JButton {
             timeColor = "A2A838";
         }
 
+        if (!commentsLoaded) {
+            comments = TrelloClient.GetInstance().getComments(trelloCard);
+            commentsLoaded = true;
+        }
+
         String html = "";
         if (cardOpened) {
             this.setPreferredSize(new Dimension(500, 50));
@@ -118,8 +137,13 @@ class CardButton extends JButton {
                 + (minutes < 10 ? "0" : "") + minutes + ":"
                 + (seconds < 10 ? "0" : "") + seconds
                 + "</font><br>"
-                + " " + trelloCard.getDesc()
-                + "</html>";
+                + " " + trelloCard.getDesc();
+
+            for (String comment : comments) {
+                html += comment + "<br>";
+            }
+
+            html += "</html>";
         } else {
 
             this.setPreferredSize(null);
