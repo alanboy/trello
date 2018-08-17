@@ -24,7 +24,8 @@ import org.trello4j.*;
 import org.trello4j.model.*;
 
 public class UIServer {
-    public static JDialog frame;
+    public static JDialog trelloFrame;
+    public static JDialog pomodoroFrame;
     static Logger log;
 
     static {
@@ -32,41 +33,41 @@ public class UIServer {
     }
 
     // *************************************************************************
-    // *        Setting up the frame
+    // *        Setting up the trelloFrame
     // *************************************************************************
     public static void createAndShowGUI() {
         log.debug("Created GUI on Event Dispatcher Thread: " + SwingUtilities.isEventDispatchThread());
 
-        frame = new JDialog();
+        trelloFrame = new JDialog();
 
         GridBagLayout experimentLayout = new GridBagLayout();
-        frame.setLayout(experimentLayout);
+        trelloFrame.setLayout(experimentLayout);
 
-        frame.setLocation(200, System.getProperty("os.name").toLowerCase().startsWith("mac") ? 25 : 0 );
-        frame.setUndecorated(true);
-        frame.setAlwaysOnTop(true);
-        frame.setFocusableWindowState(false);
+        trelloFrame.setLocation(200, System.getProperty("os.name").toLowerCase().startsWith("mac") ? 25 : 0 );
+        trelloFrame.setUndecorated(true);
+        trelloFrame.setAlwaysOnTop(true);
+        trelloFrame.setFocusableWindowState(false);
 
         // Make it invisible
-        frame.getRootPane().setOpaque(false);
-        frame.getContentPane().setBackground(new Color(0, 0, 0, 0));
-        frame.setBackground(new Color(0, 0, 0, 0));
+        trelloFrame.getRootPane().setOpaque(false);
+        trelloFrame.getContentPane().setBackground(new Color(0, 0, 0, 0));
+        trelloFrame.setBackground(new Color(0, 0, 0, 0));
 
-        frame.setType(Window.Type.UTILITY);
+        trelloFrame.setType(Window.Type.UTILITY);
 
         JButton mainMenu = new MainMenuButton();
 
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.PAGE_START;
 
-        frame.add(mainMenu, c);
+        trelloFrame.add(mainMenu, c);
 
         // If you dont do this, the main thread will die and so will
         // the entire application.
-        frame.pack();
-        frame.setVisible(true);
+        trelloFrame.pack();
+        trelloFrame.setVisible(true);
 
-        log.debug("Created UI. Freame object is " + frame );
+        log.debug("Created UI. Freame object is " + trelloFrame );
 
         try {
             // Start TrelloClient WorkerThread, this call is non-blocking
@@ -79,20 +80,72 @@ public class UIServer {
         log.debug("createAndShowGUI thread ends");
     }
 
+    static void endPomodoroTimerForCard() {
+        pomodoroFrame.setVisible(false);
+        trelloFrame.setVisible(true);
+    }
+
+    static void startPomodoroTimerForCard(Card card, CardButton cardButton) {
+        log.debug("Created GUI on Event Dispatcher Thread: " + SwingUtilities.isEventDispatchThread());
+
+        pomodoroFrame = new JDialog();
+
+        GridBagLayout experimentLayout = new GridBagLayout();
+        pomodoroFrame.setLayout(experimentLayout);
+
+        pomodoroFrame.setLocation(200, System.getProperty("os.name").toLowerCase().startsWith("mac") ? 25 : 0 );
+        pomodoroFrame.setUndecorated(true);
+        pomodoroFrame.setAlwaysOnTop(true);
+        pomodoroFrame.setFocusableWindowState(false);
+
+        // Make it invisible
+        pomodoroFrame.getRootPane().setOpaque(false);
+        pomodoroFrame.getContentPane().setBackground(new Color(0, 0, 0, 0));
+        pomodoroFrame.setBackground(new Color(0, 0, 0, 0));
+
+        pomodoroFrame.setType(Window.Type.UTILITY);
+
+        JButton mainMenu = new MainMenuButton();
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.PAGE_START;
+
+        pomodoroFrame.add(mainMenu, c);
+
+        // If you dont do this, the main thread will die and so will
+        // the entire application.
+        pomodoroFrame.pack();
+        pomodoroFrame.setVisible(true);
+
+        trelloFrame.setVisible(false);
+
+        log.debug("Created UI. Freame object is " + pomodoroFrame );
+
+        PomodoroContainerPanel cp = new PomodoroContainerPanel(card, cardButton);
+        GridBagConstraints c2 = new GridBagConstraints();
+        c2.anchor = GridBagConstraints.PAGE_START;
+        pomodoroFrame.add(cp, c2);
+
+        log.info("Done adding Jpanel to the pomodoroFrame for list " );
+        pomodoroFrame.pack();
+
+        log.debug("createAndShowGUI thread ends");
+    }
+
     static void addList(final String sListId, final List<Card> listOfCards, List<org.trello4j.model.List> listsInBoard) {
         log.debug("Adding list " + sListId);
         ListPanel existingList = getListPanelForList(sListId);
         if (existingList == null) {
-            // Add new ListPanel to the frame
+            // Add new ListPanel to the trelloFrame
             ContainerPanel cp = new ContainerPanel(sListId, listOfCards, listsInBoard);
 
             // Add ListPanel (JPanel) to main Window (JDialog)
             GridBagConstraints c = new GridBagConstraints();
             c.anchor = GridBagConstraints.PAGE_START;
-            frame.add(cp, c);
+            trelloFrame.add(cp, c);
 
-            log.info("Done adding Jpanel to the frame for list " + sListId);
-            frame.pack();
+            log.info("Done adding Jpanel to the trelloFrame for list " + sListId);
+            trelloFrame.pack();
 
         } else {
             // Merge into existing List
@@ -102,7 +155,7 @@ public class UIServer {
     }
 
     public static ListPanel getListPanelForList(String sListId) {
-        for(Component c : frame.getContentPane().getComponents()) {
+        for(Component c : trelloFrame.getContentPane().getComponents()) {
             if (c instanceof ContainerPanel) {
                 if (((ContainerPanel)c).getListId().equals(sListId)) {
                     return ((ContainerPanel)c).getListPanel();
@@ -113,11 +166,11 @@ public class UIServer {
     }
 
     public static void moveWindowTo(Point position) {
-        frame.setLocation((int)position.getX(), (int)position.getY());
+        trelloFrame.setLocation((int)position.getX(), (int)position.getY());
     }
 
     public static void setVisible(boolean visible) {
-        frame.setVisible(visible);
+        trelloFrame.setVisible(visible);
     }
 }
 

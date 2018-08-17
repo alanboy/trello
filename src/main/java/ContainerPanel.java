@@ -46,7 +46,7 @@ class ContainerPanel extends JPanel {
             topCardButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent ev) {
                     isDroppedDown = true;
-                    updateVisibilityOfElements  ();
+                    updateVisibilityOfElements();
                 }
             });
             this.add(topCardButton);
@@ -59,7 +59,7 @@ class ContainerPanel extends JPanel {
         minimizeList.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
                 isDroppedDown = false;
-                updateVisibilityOfElements  ();
+                updateVisibilityOfElements();
             }
         });
 

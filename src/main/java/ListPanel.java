@@ -320,6 +320,14 @@ public class ListPanel extends JList<Card> {
                 }
             });
 
+            JMenuItem startPomodoroTimer = new JMenuItem("Start pomodoro timer");
+            startPomodoroTimer.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent ev) {
+                    CardButton cardButton = myList.cardButtons.get(selectedCard.getId());
+                    UIServer.startPomodoroTimerForCard(selectedCard, cardButton);
+                }
+            });
+
             JMenuItem copyToClipboardMenu = new JMenuItem("Copy to clipboard");
             copyToClipboardMenu.addActionListener(new ActionListener(){
                 public void actionPerformed(ActionEvent ev) {
@@ -400,6 +408,7 @@ public class ListPanel extends JList<Card> {
             buttonPopUp.add(openBoardInBrowser);
             buttonPopUp.add(moveToListMenu);
             buttonPopUp.add(addCommentMenu);
+            buttonPopUp.add(startPomodoroTimer);
             buttonPopUp.add(copyToClipboardMenu);
             buttonPopUp.add(archiveCardMenu);
             buttonPopUp.addSeparator();
