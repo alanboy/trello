@@ -121,10 +121,10 @@ public class ListPanel extends JList<Card> {
                 CardComparable cc = queue.poll();
                 Color bgColor = null;
                 switch(i) {
-                    case 1: bgColor = Color.decode("0x0766ff"); break;
-                    case 2: bgColor = Color.decode("0x1997ff"); break;
-                    case 3: bgColor = Color.decode("0xffc526"); break;
-                    case 4: bgColor = Color.decode("0xff910c"); break; // Oldest
+                    case 1: bgColor = Color.decode("0xfff4d9"); break;
+                    case 2: bgColor = Color.decode("0xffd794"); break;
+                    case 3: bgColor = Color.decode("0xfea56e"); break;
+                    case 4: bgColor = Color.decode("0xfc6161"); break; // Oldest
                 }
 
                 if (bgColor != null)
