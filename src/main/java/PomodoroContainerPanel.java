@@ -21,6 +21,7 @@ class PomodoroContainerPanel extends JPanel {
     private JButton minimizeList;
     private String listId;
     private static final int ONE_SECOND = 1000;
+    private static final int HALF_SECOND = 500;
     private int seconds;
     private Card card;
 
@@ -37,7 +38,6 @@ class PomodoroContainerPanel extends JPanel {
 
         PomodoroMouseAdapter mouseAdapter = new PomodoroMouseAdapter();
         minimizeList.addMouseListener(mouseAdapter);
-
 
         minimizeList.setMargin(new Insets(0, 0, 0, 0));
         minimizeList.setContentAreaFilled(false);
@@ -64,10 +64,24 @@ class PomodoroContainerPanel extends JPanel {
         }
     }
 
-    private void updateVisibilityOfElements() {
+    private void updateVisibilityOfElements() throws InterruptedException {
         int timeLeft = (25 * 60) - seconds;
         int minutesLeft = timeLeft / 60;
         int secondsLeft = timeLeft % 60;
+
+        if (timeLeft <= 0) {
+            minimizeList.setBackground(Color.decode("0xfea56e"));
+            Thread.sleep(HALF_SECOND);
+            minimizeList.setBackground(Color.decode("0xfc6161"));
+            return;
+        }
+
+        switch (timeLeft) {
+            case 20*60: minimizeList.setBackground(Color.decode("0xfff4d9")); break;
+            case 15*60: minimizeList.setBackground(Color.decode("0xffd794")); break;
+            case 10*60: minimizeList.setBackground(Color.decode("0xfea56e")); break;
+            case 5*60: minimizeList.setBackground(Color.decode("0xfc6161")); break;
+        }
 
         String minutesLeftString = (minutesLeft <= 9 ? "0" : "") + minutesLeft;
         String secondsLeftString = (secondsLeft <= 9 ? "0" : "") + secondsLeft;
@@ -81,6 +95,16 @@ class PomodoroContainerPanel extends JPanel {
         JDialog topFrame = (JDialog)SwingUtilities.windowForComponent(this);
         if (topFrame != null)
             topFrame.pack();
+
+        if (topFrame != null && windowPosition != null) {
+            topFrame.setLocation((int)windowPosition.getX(), (int)windowPosition.getY());
+        }
+    }
+
+    private static Point windowPosition;
+
+    public static void moveWindowTo(Point position) {
+        windowPosition = position;
     }
 
     class PomodoroMouseAdapter extends MouseInputAdapter {

@@ -26,6 +26,7 @@ class MainMenuButton extends JButton {
                 if (!ev.isPopupTrigger()) {
                     Point currPosition = MouseInfo.getPointerInfo().getLocation();
                     UIServer.moveWindowTo(currPosition);
+                    PomodoroContainerPanel.moveWindowTo(currPosition);
                 }
             }
 
