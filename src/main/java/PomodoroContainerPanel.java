@@ -135,13 +135,13 @@ class PomodoroContainerPanel extends JPanel {
             startPomodoroTimer.addActionListener(new ActionListener(){
                 public void actionPerformed(ActionEvent ev) {
 
-                try {
-                    TrelloClient.GetInstance().newCommentToCard(
-                        card.getId(),
-                        "New pomodoro finished in " + InetAddress.getLocalHost().getHostName());
-                } catch(Exception ex) {
-                    //log.error(ex);
-                }
+                    try {
+                        TrelloClient.GetInstance().newCommentToCard(
+                            card.getId(),
+                            "New pomodoro finished in " + InetAddress.getLocalHost().getHostName());
+                    } catch(Exception ex) {
+                        //log.error(ex);
+                    }
 
                     UIServer.endPomodoroTimerForCard();
                 }
