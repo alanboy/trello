@@ -36,7 +36,7 @@ class PomodoroContainerPanel extends JPanel {
         minimizeList.setLayout(new BoxLayout(minimizeList, BoxLayout.Y_AXIS));
         minimizeList.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        PomodoroMouseAdapter mouseAdapter = new PomodoroMouseAdapter();
+        PomodoroMouseAdapter mouseAdapter = new PomodoroMouseAdapter(card);
         minimizeList.addMouseListener(mouseAdapter);
 
         minimizeList.setMargin(new Insets(0, 0, 0, 0));
@@ -48,6 +48,14 @@ class PomodoroContainerPanel extends JPanel {
 
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.add(minimizeList);
+
+        try {
+            TrelloClient.GetInstance().newCommentToCard(
+                card.getId(),
+                "New pomodoro started in " + InetAddress.getLocalHost().getHostName());
+        } catch(Exception ex) {
+            //log.error(ex);
+        }
 
         new Thread(() -> updateTimersOnCards()).start();
     }
@@ -109,6 +117,11 @@ class PomodoroContainerPanel extends JPanel {
 
     class PomodoroMouseAdapter extends MouseInputAdapter {
 
+        private Card card;
+        PomodoroMouseAdapter(Card card) {
+            this.card = card;
+        }
+
         @Override
         public void mouseReleased(MouseEvent e) {
             if (!e.isPopupTrigger()) {
@@ -121,6 +134,15 @@ class PomodoroContainerPanel extends JPanel {
             JMenuItem startPomodoroTimer = new JMenuItem("End pomodoro timer");
             startPomodoroTimer.addActionListener(new ActionListener(){
                 public void actionPerformed(ActionEvent ev) {
+
+                try {
+                    TrelloClient.GetInstance().newCommentToCard(
+                        card.getId(),
+                        "New pomodoro finished in " + InetAddress.getLocalHost().getHostName());
+                } catch(Exception ex) {
+                    //log.error(ex);
+                }
+
                     UIServer.endPomodoroTimerForCard();
                 }
             });
