@@ -1,3 +1,7 @@
+plugins {
+  id 'application'
+  id 'org.openjfx.javafxplugin' version '0.0.9'
+}
 apply plugin: "java"
 apply plugin:'application'
 sourceCompatibility = 1.8
@@ -5,6 +9,12 @@ sourceCompatibility = 1.8
 def MAJOR_VERSION = 0
 def MINOR_VERSION = 3
 mainClassName = "TrelloCmd"
+
+
+javafx {
+     version = '11'
+    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing', 'javafx.web' ]
+}
 
 repositories {
     mavenCentral()
@@ -18,7 +28,9 @@ dependencies {
     compile 'org.apache.logging.log4j:log4j-api:2.0.2'
     compile 'org.apache.logging.log4j:log4j-core:2.0.2'
     // this might only be needed in Linux:
-    // compile files("${System.properties['java.home']}\\lib\\jfxrt.jar")
+    //compile files("C:\\Users\\alanb\\Downloads\\openjfx-11.0.2_windows-x64_bin-sdk\\javafx-sdk-11.0.2\\lib\\javafx.base.jar")
+    //compile 'javafx:javafx.controls:11.0.0'
+    //compile files("${System.properties['java.home']}\\lib\\jfxrt.jar")
 }
 
 //# ####################################################################
@@ -45,12 +57,13 @@ task writeVersionData {
         BuildFolder.mkdirs()
     }
 
+    // make directory build\libs if it does not exist.
     def VersionTxt = new File("build\\libs\\latestversion.json")
     VersionTxt.text = version.toString()
 }
 
 jar.doFirst {
-    tasks.writeVersionData.execute()
+   // tasks.writeVersionData.execute()
 }
 
 //# ####################################################################
@@ -89,8 +102,8 @@ task copyResources(type: Copy){
 }
 
 jar.doLast {
-    tasks.copyLibs.execute()
-    tasks.copyResources.execute()
+    //tasks.copyLibs.execute()
+    //tasks.copyResources.execute()
 }
 
 //# ####################################################################
@@ -108,7 +121,7 @@ task publish(type: Copy) {
     into 'dist'
 }
 
-task publish.doFirst {
-    delete fileTree(dir: 'dist\\')
-}
+//task publish.doFirst {
+//    delete fileTree(dir: 'dist\\')
+//}
 
