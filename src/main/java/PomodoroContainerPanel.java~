@@ -114,7 +114,6 @@ class PomodoroContainerPanel extends JPanel {
 
             Files.write(
               Paths.get("C:\\Users\\alan\\Desktop\\my-daily-activity.txt"),
-
               content.getBytes(),
               StandardOpenOption.APPEND);
 

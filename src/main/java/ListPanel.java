@@ -320,6 +320,20 @@ public class ListPanel extends JList<Card> {
                 }
             });
 
+            JMenuItem renameCardMenu = new JMenuItem("Rename");
+            renameCardMenu.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent ev) {
+                    String response = JOptionPane.showInputDialog("Whats the new name?", selectedCard.getName());
+
+                    try {
+                        TrelloClient.GetInstance().newCommentToCard(selectedCard.getId(), response);
+                        TrelloClient.GetInstance().updateOnce();
+                    } catch(Exception ex) {
+                        log.error(ex);
+                    }
+                }
+            });
+
             JMenuItem startPomodoroTimer = new JMenuItem("Start pomodoro timer");
             startPomodoroTimer.addActionListener(new ActionListener(){
                 public void actionPerformed(ActionEvent ev) {
@@ -409,6 +423,7 @@ public class ListPanel extends JList<Card> {
             buttonPopUp.add(moveToListMenu);
             buttonPopUp.add(addCommentMenu);
             buttonPopUp.add(startPomodoroTimer);
+            buttonPopUp.add(renameCardMenu);
             buttonPopUp.add(copyToClipboardMenu);
             buttonPopUp.add(archiveCardMenu);
             buttonPopUp.addSeparator();

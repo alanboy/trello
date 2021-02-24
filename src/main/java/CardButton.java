@@ -103,7 +103,6 @@ class CardButton extends JButton {
         int days = (int)(Math.floor(init / 86400));
         int hours = (int)(Math.floor(init / 3600) % 24);
         int minutes = (int)Math.floor((init / 60) % 60);
-        int seconds = init % 60;
 
         String description = "";
         if (title.length() > 40) {
@@ -134,8 +133,7 @@ class CardButton extends JButton {
                 +  " <font color=\"" + timeColor + "\">"
                 + (days > 0 ? days + "d " : "")
                 + (hours < 10 ? "0" : "") + hours + ":"
-                + (minutes < 10 ? "0" : "") + minutes + ":"
-                + (seconds < 10 ? "0" : "") + seconds
+                + (minutes < 10 ? "0" : "") + minutes
                 + "</font><br>"
                 + " " + trelloCard.getDesc();
 
@@ -152,8 +150,7 @@ class CardButton extends JButton {
                 +  " <font color=\"" + timeColor + "\">"
                 + (days > 0 ? days + "d " : "")
                 + (hours < 10 ? "0" : "") + hours + ":"
-                + (minutes < 10 ? "0" : "") + minutes + ":"
-                + (seconds < 10 ? "0" : "") + seconds
+                + (minutes < 10 ? "0" : "") + minutes
                 + "</font>"
                 + "</html>";
         }
