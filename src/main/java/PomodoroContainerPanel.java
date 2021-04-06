@@ -90,20 +90,20 @@ class PomodoroContainerPanel extends JPanel {
                 switch (state) {
                     case "pomodoro":
                         Files.copy(
-                            new File("C:\\Users\\alan\\Desktop\\scripts\\code.py_pomodoro").toPath(),
-                            new File("d:\\code.py").toPath(), StandardCopyOption.REPLACE_EXISTING);
+                            new File("c:\\Users\\alanb\\code\\trello\\device\\code.py_pomodoro").toPath(),
+                            new File("e:\\code.py").toPath(), StandardCopyOption.REPLACE_EXISTING);
                     break;
 
                     case "rest":
                         Files.copy(
-                            new File("C:\\Users\\alan\\Desktop\\scripts\\code.py_rest").toPath(),
-                            new File("d:\\code.py").toPath(), StandardCopyOption.REPLACE_EXISTING);
+                            new File("c:\\Users\\alanb\\code\\trello\\device\\code.py_rest").toPath(),
+                            new File("e:\\code.py").toPath(), StandardCopyOption.REPLACE_EXISTING);
                     break;
 
                     case "standby":
                         Files.copy(
-                            new File("C:\\Users\\alan\\Desktop\\scripts\\code.py_standby").toPath(),
-                            new File("d:\\code.py").toPath(), StandardCopyOption.REPLACE_EXISTING);
+                            new File("c:\\Users\\alanb\\code\\trello\\device\\code.py_standby").toPath(),
+                            new File("e:\\code.py").toPath(), StandardCopyOption.REPLACE_EXISTING);
                     break;
                 }
             }
@@ -113,7 +113,7 @@ class PomodoroContainerPanel extends JPanel {
                     +  "\"title\": \"" + card.getName() + "\" }, \n";
 
             Files.write(
-              Paths.get("C:\\Users\\alan\\Desktop\\my-daily-activity.txt"),
+              Paths.get("C:\\Users\\alanb\\Desktop\\my-daily-activity.txt"),
 
               content.getBytes(),
               StandardOpenOption.APPEND);
