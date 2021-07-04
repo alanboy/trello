@@ -14,19 +14,31 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.*;
 import org.apache.logging.log4j.*;
 import org.trello4j.model.Card;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.*;
+import java.io.*;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
+import java.io.FileWriter;
+import java.time.LocalDate;
 
 class PomodoroContainerPanel extends JPanel {
 
+    private static Point windowPosition;
+    private static final int HALF_SECOND = 500;
+    private static final int ONE_SECOND = 1000;
+    private Card card;
     private CardButton topCardButton;
     private JButton minimizeList;
     private String listId;
-    private static final int ONE_SECOND = 1000;
-    private static final int HALF_SECOND = 500;
     private int seconds;
-    private Card card;
+    Logger logger;
 
     PomodoroContainerPanel(Card card, CardButton cardButton) {
         super();
+
+        logger = LogManager.getLogger();
 
         seconds = 0;
         topCardButton = cardButton;
@@ -50,11 +62,15 @@ class PomodoroContainerPanel extends JPanel {
         this.add(minimizeList);
 
         try {
+            String response = JOptionPane.showInputDialog("What do you want to accomplish during the next 25 minutes?");
+            LED.getInstance().changeLed("pomodoro");
+            writePomodoroActivity(response);
+
             TrelloClient.GetInstance().newCommentToCard(
                 card.getId(),
-                "New pomodoro started in " + InetAddress.getLocalHost().getHostName());
+                "Pomodoro started  @ " + InetAddress.getLocalHost().getHostName() + ":" + response);
         } catch(Exception ex) {
-            //log.error(ex);
+            logger.error(ex);
         }
 
         new Thread(() -> updateTimersOnCards()).start();
@@ -69,6 +85,33 @@ class PomodoroContainerPanel extends JPanel {
             } catch (InterruptedException ie) {
 
             }
+        }
+    }
+
+    // Write the activity on the Pomodoro activity file
+    private void writePomodoroActivity(String details) {
+        String activityFileName = "C:\\Users\\alanb\\activity.txt";
+
+        LocalDate date = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String text = date.format(formatter);
+
+        String content = "\n" + text + "\n";
+        content += "    +25m #pomodoro - " + card.getName() + " - " + details + "\n";
+
+        try {
+            File activityFile = new File(activityFileName);
+            if (!activityFile.exists()) {
+                return;
+            }
+
+            Files.write(
+                Paths.get(activityFileName),
+                content.getBytes(),
+                StandardOpenOption.APPEND);
+
+        } catch (Exception e) {
+            logger.error(e);
         }
     }
 
@@ -109,8 +152,6 @@ class PomodoroContainerPanel extends JPanel {
         }
     }
 
-    private static Point windowPosition;
-
     public static void moveWindowTo(Point position) {
         windowPosition = position;
     }
@@ -136,9 +177,10 @@ class PomodoroContainerPanel extends JPanel {
                 public void actionPerformed(ActionEvent ev) {
 
                     try {
+                        LED.getInstance().changeLed("rest");
                         TrelloClient.GetInstance().newCommentToCard(
                             card.getId(),
-                            "New pomodoro finished in " + InetAddress.getLocalHost().getHostName());
+                            "Pomodoro finished @ " + InetAddress.getLocalHost().getHostName());
                     } catch(Exception ex) {
                         //log.error(ex);
                     }

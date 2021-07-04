@@ -563,6 +563,8 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         log.info("version in github " + versionInGithub);
         log.info("local version     " + About.Version);
 
+        // This check is not always correct. When developing a new version, your version
+        // will always be greater than the one in GitHub.
         if (versionInGithub.equals(About.Version)) {
             log.info("No need to update");
             return;
@@ -573,7 +575,6 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
 
         try {
             HttpClient.RequestBinToFile(binUrl, "trello-latest.jar");
-
             log.info("Update successful, saved to trello-latest.jar.");
 
         } catch (NullPointerException npe) {

@@ -1,30 +1,37 @@
 Desktop Trello Bugger
 ==================
 
-## Instructions for development ##
+# Installation
 
-### Windows ###
 
-    C:\Users\Alan\t>git clone https://github.com/alanboy/trello.git
-    C:\Users\Alan\t\trello>git submodule init
-    C:\Users\Alan\t\trello>git submodule update --init --recursive
+# Development
 
-Build trello4j and add maven and requirements to your path:
+## Windows
+
+## Pre-requisites
+- Maven (Direct link to version 3.6.3)[https://downloads.apache.org/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.zip]
+- Gradle (v6.8)[https://gradle.org/next-steps/?version=6.8&format=bin]
+- Add maven and gradle to your path.
 
     SET PATH=%PATH%;c:\Users\Alan\maven\bin\
-    SET JAVA_HOME=c:\Program Files\Java\jdk1.7.0_51\
-    C:\Users\Alan\t\trello\trello4j>mvn install -DskipTests
+    set path=%path%;c:\users\alan\gradle-2.2.1\bin\
 
-You should end up with **trello4j** in a JAR: `C:\Users\Alan\t\trello\trello4j\target\trello4j-1.0-SNAPSHOT.jar`
+## Instructions
+    C:\source>git clone https://github.com/alanboy/trello.git
+    C:\source\trello>git submodule init
+    C:\source\trello>git submodule update --init --recursive
 
-Add gradle to your path:
+Build (trello4j)[https://github.com/joelso/trello4j]:
 
-    SET PATH=%PATH%;C:\Users\Alan\gradle-2.2.1\bin\
+    SET JAVA_HOME=c:\Program Files\Java\jdk1.7.0_51\ # Don't know that this is needed anymore
+    C:\source\trello\trello4j>mvn install -DskipTests
+
+You should end up with **trello4j** in a JAR: `C:\source\trello\trello4j\target\trello4j-1.0-SNAPSHOT.jar`
 
 Now you can build and run:
 
-    C:\Users\Alan\t\trello>gradle build
-    C:\Users\Alan\t\trello>gradle run
+    C:\source\trello>gradle build
+    C:\source\trello>gradle run
 
 ## Linux ##
 
