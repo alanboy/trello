@@ -33,7 +33,7 @@ public class HttpClient {
         return response;
     }
 
-    public static void RequestBinToFile(String urlString, String file) throws Exception {
+    public static void RequestBinToFile(String urlString, String fileName) throws Exception {
         URL url = new URL(urlString);
         URLConnection uc = url.openConnection();
 
@@ -64,8 +64,8 @@ public class HttpClient {
             throw new IOException("Only read " + offset + " bytes; Expected " + contentLength + " bytes");
         }
 
-        String filename = file;
-        FileOutputStream out = new FileOutputStream(filename);
+        FileOutputStream out = new FileOutputStream(fileName);
+
         out.write(data);
         out.flush();
         out.close();

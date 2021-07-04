@@ -320,6 +320,20 @@ public class ListPanel extends JList<Card> {
                 }
             });
 
+            JMenuItem startTimerMenu = new JMenuItem("Start a timer");
+            startTimerMenu.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent ev) {
+                    String response = JOptionPane.showInputDialog("How much time in minutes?");
+                    try {
+                        log.info("Starting a timer with user input: " + response);
+                        LED.getInstance().startTimer(Integer.parseInt(response));
+
+                    } catch(Exception ex) {
+                        log.error(ex);
+                    }
+                }
+            });
+
             JMenuItem renameCardMenu = new JMenuItem("Rename");
             renameCardMenu.addActionListener(new ActionListener(){
                 public void actionPerformed(ActionEvent ev) {
@@ -339,6 +353,13 @@ public class ListPanel extends JList<Card> {
                 public void actionPerformed(ActionEvent ev) {
                     CardButton cardButton = myList.cardButtons.get(selectedCard.getId());
                     UIServer.startPomodoroTimerForCard(selectedCard, cardButton);
+                }
+            });
+
+            JMenuItem turnOffLed = new JMenuItem("Turn off leds");
+            turnOffLed.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent ev) {
+                    LED.getInstance().turnOff();
                 }
             });
 
@@ -419,14 +440,16 @@ public class ListPanel extends JList<Card> {
 
             // Add menus
             buttonPopUp.add(newCardMenu);
-            buttonPopUp.add(openBoardInBrowser);
             buttonPopUp.add(moveToListMenu);
-            buttonPopUp.add(addCommentMenu);
             buttonPopUp.add(startPomodoroTimer);
-            buttonPopUp.add(renameCardMenu);
-            buttonPopUp.add(copyToClipboardMenu);
+            buttonPopUp.add(addCommentMenu);
             buttonPopUp.add(archiveCardMenu);
+            buttonPopUp.add(openBoardInBrowser);
+            //buttonPopUp.add(renameCardMenu);
+            buttonPopUp.add(copyToClipboardMenu);
             buttonPopUp.addSeparator();
+            buttonPopUp.add(startTimerMenu);
+            buttonPopUp.add(turnOffLed);
             buttonPopUp.add(hideForAWhile);
             buttonPopUp.add(refreshMenu);
             buttonPopUp.add(exitMenu);

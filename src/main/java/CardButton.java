@@ -25,22 +25,23 @@ class CardButton extends JButton {
     private static boolean Instance = false;
     private static final int ONE_SECOND = 1000;
 
-    CardButton(Card c) {
-        this.trelloCard = c;
+    CardButton(Card card) {
+        this.trelloCard = card;
         this.log = LogManager.getLogger();
 
-        log.info("Creating CardButton for card id = "+ c.getId() +"");
+        log.info("Creating CardButton for card id = "+ card.getId() +"");
 
         this.setMargin(new Insets(0, 0, 0, 0));
 
         this.setContentAreaFilled(false);
         this.setFocusPainted(false);
-        this.setToolTipText(c.getName() + "\n" + c.getDesc());
+        this.setToolTipText(card.getName() + "\n" + card.getDesc());
         this.setOpaque(true);
 
         updateText();
 
         Init(this);
+        log.info("Creating CardButton for card id = "+ card.getId() +" - DONE!");
     }
 
     private static void Init(CardButton thisCard) {
