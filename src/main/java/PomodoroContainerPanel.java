@@ -21,6 +21,7 @@ import java.io.*;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
 import java.io.FileWriter;
+import java.time.LocalDate;
 
 class PomodoroContainerPanel extends JPanel {
 
@@ -83,8 +84,6 @@ class PomodoroContainerPanel extends JPanel {
     private String state = "";
     private void changeLed(String state) {
         try{
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-            LocalDateTime now = LocalDateTime.now();
 
             if (state != this.state) {
                 switch (state) {
@@ -108,15 +107,18 @@ class PomodoroContainerPanel extends JPanel {
                 }
             }
 
-            String content =  "{ \"timestamp\": \"" + now  + "\", \"event\": \""+ state +"\", "
-                    +  "\"id\": \"" + card.getId() + "\" ,"
-                    +  "\"title\": \"" + card.getName() + "\" }, \n";
+            LocalDate date = LocalDate.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String text = date.format(formatter);
 
-            Files.write(
-              Paths.get("C:\\Users\\alanb\\Desktop\\my-daily-activity.txt"),
+            //LocalDate parsedDate = LocalDate.parse(text, formatter);
+            if (state == "pomodoro") {
+                String content = "\n" + text + "\n";
+                content += "    +25m #pomodoro " + card.getName() + "\n";
+                //String content =  "{ \"timestamp\": \"" + now  + "\", \"event\": \""+ state +"\", " +  "\"id\": \"" + card.getId() + "\" ," +  "\"title\": \"" + card.getName() + "\" }, \n";
 
-              content.getBytes(),
-              StandardOpenOption.APPEND);
+                Files.write( Paths.get("C:\\Users\\alanb\\activity.txt"),content.getBytes(), StandardOpenOption.APPEND);
+            }
 
         } catch (IOException ioe) {
             System.out.println(ioe);
