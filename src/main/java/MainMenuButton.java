@@ -5,8 +5,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import java.util.List;
+import org.trello4j.model.*;
 import org.trello4j.model.Card;
 import org.apache.logging.log4j.*;
+
+import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 class MainMenuButton extends JButton {
     Logger log;
@@ -38,14 +45,10 @@ class MainMenuButton extends JButton {
             }
         });
 
-        // Contextual menu
-        JPopupMenu buttonPopUp = new JPopupMenu();
-
-        JMenuItem openBugInGithub = new JMenuItem("Submit bug");
+        JMenuItem openBugInGithub = new JMenuItem("Write json");
         openBugInGithub.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent ev) {
-                // include logs
-                // open github bug
+                Macropad.getInstance().Write();
             }
         });
 
@@ -74,6 +77,8 @@ class MainMenuButton extends JButton {
         });
 
         // Add menus
+        // Contextual menu
+        JPopupMenu buttonPopUp = new JPopupMenu();
         buttonPopUp.add(openConfiguration);
         buttonPopUp.add(openBugInGithub);
         buttonPopUp.add(checkForUpdates);

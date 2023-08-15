@@ -36,9 +36,15 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
     private String explicitConfigLocation;
     private long secondsSinceUpdate = 0;
 
-    Logger log;
+    private static HashMap<String,List<org.trello4j.model.List>> cachedListsInBoard = null;
+    private static ArrayList<Board> cachedListOfMyBoards = null;
 
+    private Logger log;
     private JsonObject jObject; // Store configuration object
+
+    public static String getKey() {
+        return API_KEY;
+    }
 
     // *************************************************************************
     // *         Singleton Construction
@@ -55,6 +61,70 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         log.debug("Building a new TrelloClient");
     }
 
+    // *************************************************************************
+    // *         Initialization of the client
+    // *************************************************************************
+    public void initialize() throws Exception {
+        if (isInitialized) {
+            throw new Exception("Client has already been initialized");
+        }
+
+        String configJson = readConfig();
+        boolean canContinue = false;
+
+        try {
+            canContinue = parseConfig(configJson);
+        } catch (com.google.gson.JsonSyntaxException jse) {
+            //@TODO json is bad, lets back it up and start a new one
+            throw new Exception("json is bad");
+        }
+
+        if (!canContinue) {
+            throw new Exception("Unable to stat trello client, something related to the configuration");
+        }
+
+        String userTokenFromConfig = configUserToken.substring(1, configUserToken.length()-1);
+        trello4jClient = new TrelloImpl(API_KEY, userTokenFromConfig);
+
+        if (null == trello4jClient) {
+            log.error("trello4jClient returned null");
+        }
+
+        Member m = trello4jClient.getMember("my");
+
+        if (null == m) {
+            log.error("Initialize failed while getting current user.");
+            throw new Exception("Unable to stat trello client.");
+        }
+
+        isInitialized = true;
+        log.info("trello client started for username " + m.getUsername());
+    }
+
+    public void initialize(String configPath) throws Exception {
+        explicitConfigLocation = configPath;
+        initialize();
+    }
+
+
+    /**
+      * returns true if the configuration has the minimun necessary info
+      *                   to continue execution of the client.
+      **/
+    private boolean parseConfig(String s) {
+        JsonElement jElement = new JsonParser().parse(s);
+        jObject = jElement.getAsJsonObject();
+
+        // Search for usertoken
+        configUserToken = jObject.get("usertoken").toString();
+        if (null == configUserToken)
+        {
+            log.info("config.json is missing the usertoken");
+            return false;
+        }
+
+        return true;
+    }
     // *************************************************************************
     // *         Worker thread (this is a new thread)
     // *************************************************************************
@@ -132,12 +202,23 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         log.info(">>>>>>>>>>>>>>>>>>>>> Exiting doWork()");
     }
 
-    public static String getKey() {
-        return API_KEY;
+    public void stopForAWhile() throws Exception {
+        UIServer.setVisible(false);
+        Thread.sleep(FIVE_MINUTES);
+        UIServer.setVisible(true);
     }
 
-    private static HashMap<String,List<org.trello4j.model.List>> cachedListsInBoard = null;
+    public void updateOnce() throws Exception {
+        doWork();
+    }
 
+    // *************************************************************************
+    // *         Lists and boards
+    // *************************************************************************
+
+    /**
+     * Get all lists for a particular board.
+     **/
     public List<org.trello4j.model.List> getListsFromBoard(Board board) throws Exception {
         if (!isInitialized) {
             throw new Exception("Client has not been initialized.");
@@ -157,8 +238,9 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         return ls;
     }
 
-    private static ArrayList<Board> cachedListOfMyBoards = null;
-
+    /**
+     * Get all boards available to this user.
+     **/
     public List<Board> getMyBoards() throws Exception {
         if (!isInitialized) {
             throw new Exception("Client has not been initialized.");
@@ -187,20 +269,16 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         return cachedListOfMyBoards;
     }
 
-    public void stopForAWhile() throws Exception {
-        UIServer.setVisible(false);
-        Thread.sleep(FIVE_MINUTES);
-        UIServer.setVisible(true);
-    }
-
-    public void updateOnce() throws Exception {
-        doWork();
-    }
-
+    /**
+     * Get a list of lists in a board.
+     **/
     public List<org.trello4j.model.List> getListsInBoard(String idBoard) {
         return trello4jClient.getListByBoard(idBoard);
     }
 
+    // *************************************************************************
+    // *         Card actions
+    // *************************************************************************
     public void archiveCard(Card c) { // throws Exception
         if (!isInitialized) {
            // throw new Exception("Client has not been initialized.");
@@ -274,81 +352,76 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         log.info("Added comment");
     }
 
-    public void initialize(String configPath) throws Exception {
-        explicitConfigLocation = configPath;
-        initialize();
-    }
+    // *************************************************************************
+    // *         Configuration file
+    // *************************************************************************
+    public List<TrelloCardsWithInfo> getBoardListCardHierarchy() throws Exception {
 
-    public void initialize() throws Exception {
-        if (isInitialized) {
-            throw new Exception("Client has already been initialized");
+
+        ArrayList<TrelloCardsWithInfo> result = new ArrayList<TrelloCardsWithInfo>();
+
+        // Iterate lists in configuration file
+        for (int nCurrentList = 0; nCurrentList < configListArray.size(); nCurrentList++) {
+
+            //
+            // Get the Lists
+            //
+            List<Card> listOfCardsInList = null;
+            String listId = configListArray.get(nCurrentList).toString().replace('"', ' ').trim();
+
+            // Get the actual list object (so that we can get the name)
+            org.trello4j.model.List trelloList = null;
+            try {
+                trelloList = trello4jClient.getList(listId);
+            } catch(Exception e) {
+                log.info(e);
+            }
+
+            //
+            // Get the Cards
+            //
+            try {
+                listOfCardsInList = trello4jClient.getCardsByList(listId);
+            } catch(Exception e) {
+                log.error(e);
+                continue;
+            }
+
+            // If we have no cards, then bail
+            if (null == listOfCardsInList) {
+                log.info("list `" + listId + "` does not exist or is invalid." );
+                continue;
+            }
+
+            // If we have at least one card, get the first one to
+            // determine the Board ID
+            // @TODO Support 0 sized lists
+            String idBoard;
+            if (0 != listOfCardsInList.size()) {
+                idBoard = listOfCardsInList.get(0).getIdBoard();
+            } else {
+                log.info("List `" + listId + "` has no cards!" );
+                continue;
+            }
+
+            //
+            // Get the Board
+            //
+            Board board = null;
+            try {
+                board = trello4jClient.getBoard(trelloList.getIdBoard());
+            } catch(Exception e) {
+                log.info(e);
+            }
+
+            result.add(new TrelloCardsWithInfo(
+                board,
+                trelloList,
+                listOfCardsInList
+            ));
         }
 
-        String configJson = readConfig();
-        boolean canContinue = false;
-
-        try {
-            canContinue = parseConfig(configJson);
-        } catch (com.google.gson.JsonSyntaxException jse) {
-            //@TODO json is bad, lets back it up and start a new one
-            throw new Exception("json is bad");
-        }
-
-        if (!canContinue) {
-            throw new Exception("Unable to stat trello client, something related to the configuration");
-        }
-
-        String userTokenFromConfig = configUserToken.substring(1, configUserToken.length()-1);
-        trello4jClient = new TrelloImpl(API_KEY, userTokenFromConfig);
-
-        if (null == trello4jClient) {
-            log.error("trello4jClient returned null");
-        }
-
-        Member m = trello4jClient.getMember("my");
-
-        if (null == m) {
-            log.error("Initialize failed while getting current user.");
-            throw new Exception("Unable to stat trello client.");
-        }
-
-        isInitialized = true;
-        log.info("trello client started for username " + m.getUsername());
-    }
-
-    /**
-      * returns true if the configuration has the minimun necessary info
-      *                   to continue execution of the client.
-      **/
-    private boolean parseConfig(String s) {
-        JsonElement jElement = new JsonParser().parse(s);
-        jObject = jElement.getAsJsonObject();
-
-        // Search for usertoken
-        configUserToken = jObject.get("usertoken").toString();
-        if (null == configUserToken)
-        {
-            log.info("config.json is missing the usertoken");
-            return false;
-        }
-
-        return true;
-    }
-
-    public boolean loadLists() {
-        if (!isInitialized) {
-            return false;
-        }
-
-        // Search for at lest one list
-        configListArray = jObject.getAsJsonArray("lists");
-
-        if (null == configListArray || configListArray.size() == 0) {
-            log.info("config.json is missing at least 1 list");
-            return false;
-        }
-
-        return true;
+        return result;
     }
 
     public boolean configExist() {
@@ -383,8 +456,23 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         return true;
     }
 
-    public String getListsInConfig() {
+    public boolean loadLists() {
+        if (!isInitialized) {
+            return false;
+        }
 
+        // Search for at lest one list
+        configListArray = jObject.getAsJsonArray("lists");
+
+        if (null == configListArray || configListArray.size() == 0) {
+            log.info("config.json is missing at least 1 list");
+            return false;
+        }
+
+        return true;
+    }
+
+    public String getListsInConfig() {
         if (configListArray == null) {
             return "";
         }

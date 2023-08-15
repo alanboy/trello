@@ -356,13 +356,6 @@ public class ListPanel extends JList<Card> {
                 }
             });
 
-            JMenuItem turnOffLed = new JMenuItem("Turn off leds");
-            turnOffLed.addActionListener(new ActionListener(){
-                public void actionPerformed(ActionEvent ev) {
-                    LED.getInstance().turnOff();
-                }
-            });
-
             JMenuItem copyToClipboardMenu = new JMenuItem("Copy to clipboard");
             copyToClipboardMenu.addActionListener(new ActionListener(){
                 public void actionPerformed(ActionEvent ev) {
@@ -449,7 +442,7 @@ public class ListPanel extends JList<Card> {
             buttonPopUp.add(copyToClipboardMenu);
             buttonPopUp.addSeparator();
             buttonPopUp.add(startTimerMenu);
-            buttonPopUp.add(turnOffLed);
+            //buttonPopUp.add(turnOffLed);
             buttonPopUp.add(hideForAWhile);
             buttonPopUp.add(refreshMenu);
             buttonPopUp.add(exitMenu);
@@ -473,7 +466,7 @@ public class ListPanel extends JList<Card> {
 
                     double newPos = 0.0;
                     if (dragTargetIndex == 0) {
-                        // Moving card to the topS
+                        // Moving card to the top
                         Card after  = myListModel.get(dragTargetIndex + 1);
                         newPos = (after.getPos()) / 2;
 
@@ -490,6 +483,7 @@ public class ListPanel extends JList<Card> {
                     dragElement.setPos(newPos);
                     userModifiedCards.add(dragElement.getIdShort());
                     dragSourceIndex = currentIndex;
+
                 }
             }
         }
