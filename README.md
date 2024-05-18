@@ -1,27 +1,23 @@
-Desktop Trello Bugger
-==================
-
-# Installation
-
-
-# Development
+# Desktop Trello Bugger
 
 ## Windows
 
-## Pre-requisites
-- Maven (Direct link to version 3.6.3)[https://downloads.apache.org/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.zip]
-- Gradle (v6.8)[https://gradle.org/next-steps/?version=6.8&format=bin]
-- Add maven and gradle to your path.
+- Install Maven [version 3.9.6](https://downloads.apache.org/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.zip)
+- Install Gradle [version 6.8](https://gradle.org/next-steps/?version=6.8&format=bin)
 
-    SET PATH=%PATH%;c:\Users\Alan\maven\bin\
-    set path=%path%;c:\users\alan\gradle-2.2.1\bin\
+Add Maven and Gradle to your path.
 
-## Instructions
+```
+SET PATH=%PATH%;c:\Users\Alan\maven\bin\;c:\users\alan\gradle-2.2.1\bin\
+```
+
+Clone and initialize the repo:
+
     C:\source>git clone https://github.com/alanboy/trello.git
     C:\source\trello>git submodule init
     C:\source\trello>git submodule update --init --recursive
 
-Build (trello4j)[https://github.com/joelso/trello4j]:
+Build [trello4j](https://github.com/joelso/trello4j):
 
     SET JAVA_HOME=c:\Program Files\Java\jdk1.7.0_51\ # Don't know that this is needed anymore
     C:\source\trello\trello4j>mvn install -DskipTests
