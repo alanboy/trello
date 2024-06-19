@@ -18,6 +18,24 @@ import org.trello4j.model.Action;
 
 import org.apache.logging.log4j.*;
 
+
+import org.azd.core.types.Project;
+import org.azd.core.types.ProjectFeature;
+import org.azd.core.types.Team;
+import org.azd.enums.FeatureManagement;
+import org.azd.exceptions.AzDException;
+import org.azd.helpers.JsonMapper;
+import org.azd.interfaces.AzDClient;
+import org.azd.interfaces.CoreDetails;
+import org.azd.workitemtracking.WorkItemTrackingApi;
+//import org.azd.work.types.WorkItemReference ;
+import org.azd.workitemtracking.types.WorkItemReference;
+import org.azd.utils.AzDClientApi;
+import org.azd.workitemtracking.types.WorkItem;
+//import org.junit.Assume;
+//import org.junit.Before;
+//import org.junit.Test;
+//
 public class TrelloClient extends SwingWorker<Integer, Integer> {
 
     // @TODO put this in a configuration file somewhere:
@@ -50,9 +68,94 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         return trelloInstance;
     }
 
+    private void test() {
+        String organisation = "DevMatch";
+        String personalAccessToken = "";
+
+        // Connect Azure DevOps API with organisation name and personal access token.
+        AzDClientApi webApi = new AzDClientApi(organisation, "DevMatch", personalAccessToken);
+
+        // call the respective API with created webApi client connection object;
+        CoreDetails core = webApi.getCoreApi();
+
+
+        // call the respective API with created webApi client connection object;
+        WorkItemTrackingApi wit = webApi.getWorkItemTrackingApi();
+
+        try {
+            // get the list of projects
+            log.debug("************************************************************************");
+
+            String query = 
+                  " select                                              "
+                + "     [System.Id],                                    "
+                + "     [System.WorkItemType],                          "
+                + "     [System.Title],                                 "
+                + "     [System.State],                                 "
+                + "     [Microsoft.VSTS.Common.Priority],               "
+                + "     [Microsoft.VSTS.Scheduling.RemainingWork],      "
+                + "     [Microsoft.VSTS.Scheduling.OriginalEstimate],   "
+                + "     [System.Parent]                                 "
+                + " from                                                "
+                + "     WorkItems                                       "
+                + " where                                               "
+                + "     [System.TeamProject] = @project                 "
+                + "     and ([System.WorkItemType] = 'Task' or [System.WorkItemType] = 'Bug') "
+                + "     and [System.State] <> 'Removed'                 "
+                + "     and [System.AssignedTo] = @me                   "
+                + "     and [System.IterationPath] = @currentIteration('[DevMatch]\\DevMatch Team <id:9171bfe3-38a5-469d-bcac-80d43f331896>')              "
+                + " order by [Microsoft.VSTS.Common.Priority]           ";
+
+            List<WorkItemReference> results =  wit.queryByWiql("DevMatch Team", query).getWorkItems();
+            if (results != null) {
+                log.debug("Got some results");
+                for (WorkItemReference wi : results) {
+                    log.debug(wi.getUrl());
+                    log.debug(wi.getId());
+                }
+            }
+
+            // Get the work items:
+            wit.getWorkItems(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
+
+            //log.debug(wit.getWorkItems(new int[]{ 2012 }).getWorkItems().get(0).getUrl());
+
+            log.debug("Done with this");
+            log.debug("************************************************************************");
+            
+            //// Get the list of projects asynchronously
+            //// This returns a CompletableFuture<List<Project>>
+            //var future = core.createAsync(core.getProjects().getProjects());
+
+            //System.out.println("Do something here...");
+
+            //var projects = future.join(); // Get the results
+            
+            //projects.stream()
+            //        .map(Project::getName)
+            //        .forEach(System.out::println);
+            
+            //// create a new project
+            //core.createProject("my-new-project", "Finance management");
+            
+            //// create a team in the project
+            //core.createTeam("my-new-project", "my-new-team");
+        
+            // list all the teams
+            //core.getTeams();
+        } catch (AzDException e1) {
+            e1.printStackTrace();
+            log.debug("failed with this");
+            log.debug("************************************************************************");
+        }
+    }
+
     private TrelloClient() {
         log = LogManager.getLogger();
         log.debug("Building a new TrelloClient");
+
+        test();
+
     }
 
     // *************************************************************************
