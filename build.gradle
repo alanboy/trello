@@ -12,7 +12,7 @@ mainClassName = "TrelloCmd"
 
 
 javafx {
-    version = '11'
+    version = '18'
     modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing', 'javafx.web' ]
 }
 
@@ -23,6 +23,14 @@ repositories {
     }
 }
 
+application {
+    applicationDefaultJvmArgs = [
+        '--module-path', '/Users/alan/Downloads/javafx-sdk-22.0.1aarch64/lib',
+        '--add-modules', 'javafx.controls,javafx.graphics,javafx.fxml,javafx.swing',
+        '-Dprism.order=sw'
+    ]
+}
+
 dependencies {
     implementation  ('org.trello4j:trello4j:1.0-SNAPSHOT', 'com.google.code.gson:gson:2.6')
     implementation 'org.apache.logging.log4j:log4j-api:2.0.2'
@@ -30,10 +38,15 @@ dependencies {
     // https://mvnrepository.com/artifact/io.github.hkarthik7/azd
     implementation 'io.github.hkarthik7:azd:5.0.11'
 
+    // https://mvnrepository.com/artifact/javafx/javafx
+    //implementation 'javafx:javafx:2.2.7'
 
     // this might only be needed in Linux:
+    //implementation files("/Users/alan/Downloads/javafx-sdk-22.0.1aarch64/lib/javafx.base.jar")
+    //implementation 'org.openjfx:javafx-base:18:mac-aarch64'
+    //implementation 'org.openjfx:javafx-base:17'
     //compile files("C:\\Users\\alanb\\Downloads\\openjfx-11.0.2_windows-x64_bin-sdk\\javafx-sdk-11.0.2\\lib\\javafx.base.jar")
-    //compile 'javafx:javafx.controls:11.0.0'
+    //implementation 'javafx:javafx.controls:11.0.0'
     //compile files("${System.properties['java.home']}\\lib\\jfxrt.jar")
 }
 
