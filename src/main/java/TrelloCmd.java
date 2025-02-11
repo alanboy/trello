@@ -76,7 +76,20 @@ public class TrelloCmd {
         log.info ("\\-------------------------------------------------/");
         tClient = TrelloClient.GetInstance();
 
-        boolean bDontUpdate = false;
+        //AzureDevOps azureDevOps = AzureDevOps.GetInstance();
+        //try {
+        //    log.info("****************************************");
+        //    ArrayList<WorkItem> results = devops.GetTasksAndBugs();
+        //    for (WorkItem wi : results) {
+        //        this.log.info("WorkItem: " + wi.getId() + " - " + wi.getFields().getSystemTitle());
+        //    }
+        //    log.info("****************************************");
+        //} catch (Exception e) {
+        //    // TODO Auto-generated catch block
+        //    e.printStackTrace();
+        //}
+
+        boolean bDontUpdate = true;
         for (String arg : args) {
             if (arg.equals("-noupdate")) {
                 bDontUpdate = true;
@@ -137,6 +150,7 @@ public class TrelloCmd {
         boolean configHasLists = tClient.loadLists();
 
         if (!configHasLists) {
+            log.info("Config has no lists, showing config");
             new TrelloConfigurationWindow();
             //return;
         }

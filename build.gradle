@@ -7,12 +7,12 @@ apply plugin:'application'
 sourceCompatibility = 1.8
 
 def MAJOR_VERSION = 0
-def MINOR_VERSION = 3
+def MINOR_VERSION = 4
 mainClassName = "TrelloCmd"
 
 
 javafx {
-     version = '11'
+    version = '21'
     modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing', 'javafx.web' ]
 }
 
@@ -23,18 +23,35 @@ repositories {
     }
 }
 
+application {
+    applicationDefaultJvmArgs = [
+        '--module-path', '/Users/alan/Downloads/javafx-sdk-22.0.1aarch64/lib',
+        '--add-modules', 'javafx.controls,javafx.graphics,javafx.fxml,javafx.swing',
+        '-Dprism.order=sw'
+    ]
+}
+
 dependencies {
-    compile ('org.trello4j:trello4j:1.0-SNAPSHOT', 'com.google.code.gson:gson:2.6')
-    compile 'org.apache.logging.log4j:log4j-api:2.0.2'
-    compile 'org.apache.logging.log4j:log4j-core:2.0.2'
+    implementation  ('org.trello4j:trello4j:1.0-SNAPSHOT', 'com.google.code.gson:gson:2.6')
+    implementation 'org.apache.logging.log4j:log4j-api:2.0.2'
+    implementation 'org.apache.logging.log4j:log4j-core:2.0.2'
+    // https://mvnrepository.com/artifact/io.github.hkarthik7/azd
+    implementation 'io.github.hkarthik7:azd:5.0.11'
+
+    // https://mvnrepository.com/artifact/javafx/javafx
+    //implementation 'javafx:javafx:2.2.7'
+
     // this might only be needed in Linux:
+    //implementation files("/Users/alan/Downloads/javafx-sdk-22.0.1aarch64/lib/javafx.base.jar")
+    //implementation 'org.openjfx:javafx-base:18:mac-aarch64'
+    //implementation 'org.openjfx:javafx-base:17'
     //compile files("C:\\Users\\alanb\\Downloads\\openjfx-11.0.2_windows-x64_bin-sdk\\javafx-sdk-11.0.2\\lib\\javafx.base.jar")
-    //compile 'javafx:javafx.controls:11.0.0'
+    //implementation 'javafx:javafx.controls:11.0.0'
     //compile files("${System.properties['java.home']}\\lib\\jfxrt.jar")
 }
 
 //# ####################################################################
-//# Do  First
+//#
 //# ####################################################################
 task writeVersionData {
     def localMachine = java.net.InetAddress.getLocalHost();
@@ -62,39 +79,36 @@ task writeVersionData {
     VersionTxt.text = version.toString()
 }
 
-jar.doFirst {
-   // tasks.writeVersionData.execute()
-}
 
 //# ####################################################################
 //# Compile
 //# ####################################################################
-
 sourceSets {
     main.resources { exclude 'config.json' }
 }
 
 jar {
+    dependsOn writeVersionData
     manifest { attributes 'Main-Class' : 'TrelloCmd',
         'Implementation-Version': version,
         'Implementation-title': 'Trello Client',
-        'Class-Path': configurations.compile.collect { 'lib/' + it.getName() }.join(' ')
+        //'Class-Path': configurations.implementation.collect { 'lib/' + it.getName() }.join(' ')
+        'Class-Path':  'lib/something-something-something'
     }
 
-    from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-     }
+    //from {
+    //    configurations.implementation.collect { it.isDirectory() ? it : zipTree(it) }
+    //}
 }
 
 
 //# ####################################################################
 //# Do  Last
 //# ####################################################################
-
-task copyLibs(type: Copy) {
-    from configurations.compile
-    into 'build/libs/lib'
-}
+//task copyLibs(type: Copy) {
+//    from configurations.compile
+//    into 'build/libs/lib'
+//}
 
 task copyResources(type: Copy){
     from 'src/main/resources'
@@ -109,19 +123,34 @@ jar.doLast {
 //# ####################################################################
 //# Publishing
 //# ####################################################################
-
 task publish(type: Copy) {
-    from "build/libs/trello-" + version + ".jar"
-    rename { String fileName ->
-        fileName.replace(version, 'latest')
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    into 'dist'
+    
+    from("build/libs") {
+        include "trello-${version}.jar"
+        rename { String fileName ->
+            "trello-latest.jar"
+        }
     }
-    from "build/libs/latestversion.json"
-    into 'dist'
-    from "installer/trello-installer.msi"
-    into 'dist'
+    
+    from("build/libs") {
+        include "latestversion.json"
+    }
+
+    from("installer") {
+        include "trello-installer.msi"
+    }
+    
+    from("dist") {
+        include "trello-installer.msi"
+        include "trello-latest.jar"
+        include "latestversion.json"
+    }
 }
 
-//task publish.doFirst {
-//    delete fileTree(dir: 'dist\\')
-//}
+task cleanDist(type: Delete) {
+    delete 'dist'
+}
 
+publish.dependsOn cleanDist

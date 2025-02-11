@@ -90,7 +90,7 @@ public class SimpleSwingBrowser extends JFrame {
         topBar.setBorder(BorderFactory.createEmptyBorder(3, 5, 3, 5));
 
         // @TODO only show this when debugging mode
-        //topBar.add(txtURL, BorderLayout.CENTER);
+        topBar.add(txtURL, BorderLayout.CENTER);
         //topBar.add(btnGo, BorderLayout.EAST);
 
         JPanel statusBar = new JPanel(new BorderLayout(5, 0));
