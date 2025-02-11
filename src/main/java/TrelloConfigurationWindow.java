@@ -39,39 +39,74 @@ public class TrelloConfigurationWindow {
     public static void createAndShowGUI() {
 
         JFrame jfrm = new JFrame("Trello Client Configuration");
-        jfrm.setLayout(new FlowLayout());
+        jfrm.setLayout(new BorderLayout());
         jfrm.setSize(300, 500);
+        jfrm.setMinimumSize(new Dimension(250, 400));
 
         TrelloClient tClient = TrelloClient.GetInstance();
         String listsInConfig = tClient.getListsInConfig();
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
 
         try {
-            for (Board b : tClient.getMyBoards()) {
+            // Create a map to store organization nodes
+            Map<String, DefaultMutableTreeNode> orgNodes = new HashMap<>();
+            DefaultMutableTreeNode personalNode = new DefaultMutableTreeNode("Personal Boards");
+            
+            // First, create nodes for all organizations
+            for (Organization org : tClient.getMyOrganizations()) {
+                DefaultMutableTreeNode orgNode = new DefaultMutableTreeNode(org.getDisplayName());
+                orgNodes.put(org.getId(), orgNode);
+                root.add(orgNode);
+            }
+            
+            // Add personal boards node
+            root.add(personalNode);
 
+            // Now add boards to their respective organizations
+            for (Board b : tClient.getMyBoards()) {
                 if (b.isClosed()) {
                     continue;
                 }
 
-                DefaultMutableTreeNode node = new DefaultMutableTreeNode(b.getName());
-
+                DefaultMutableTreeNode boardNode = new DefaultMutableTreeNode(b.getName());
+                
+                // Add lists under the board
                 for (org.trello4j.model.List l : tClient.getListsFromBoard(b)) {
                     boolean listIsEnabled = (listsInConfig.indexOf(l.getId()) > 0);
-                    node.add(new TrelloNode(l.getName(), l.getId(), listIsEnabled));
+                    boardNode.add(new TrelloNode(l.getName(), l.getId(), listIsEnabled));
                 }
 
-                root.add(node);
+                // Add board to its organization or to personal boards
+                String orgId = b.getIdOrganization();
+                if (orgId != null && orgNodes.containsKey(orgId)) {
+                    orgNodes.get(orgId).add(boardNode);
+                } else {
+                    personalNode.add(boardNode);
+                }
             }
-        }catch (Exception e) {
+
+            // Remove empty nodes
+            if (personalNode.getChildCount() == 0) {
+                root.remove(personalNode);
+            }
+            for (DefaultMutableTreeNode orgNode : orgNodes.values()) {
+                if (orgNode.getChildCount() == 0) {
+                    root.remove(orgNode);
+                }
+            }
+        } catch (Exception e) {
             System.out.println(e);
+            e.printStackTrace(); // Add stack trace for better debugging
         }
 
         //create the tree by passing in the root node
         JTree tree = new JTree(root);
         tree.setCellRenderer(new MyTreeCellRenderer());
         tree.setRootVisible(true);
-        //tree.setExpandedState(new TreePath(root), true);
-        jfrm.add(new JScrollPane(tree));
+        JScrollPane scrollPane = new JScrollPane(tree);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        jfrm.add(scrollPane, BorderLayout.CENTER);
 
         tree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
             @Override
@@ -137,4 +172,3 @@ class TrelloNode extends DefaultMutableTreeNode {
         return this;
     }
 }
-

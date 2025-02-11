@@ -5,3 +5,5 @@ output.log
 installer/trello-installer.msi
 trello-installer.wixobj
 trello-installer.wixpdb
+bin
+.vscode

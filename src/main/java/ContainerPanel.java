@@ -52,7 +52,7 @@ class ContainerPanel extends JPanel {
             this.add(topCardButton);
         }
 
-        minimizeList = new JButton("^^^ close ^^^^");
+        minimizeList = new JButton("^ close ^");
         minimizeList.setVisible(isDroppedDown);
         minimizeList.setLayout(new BoxLayout(minimizeList, BoxLayout.Y_AXIS));
         minimizeList.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -82,7 +82,7 @@ class ContainerPanel extends JPanel {
     }
 
     private void updateVisibilityOfElements() {
-        // top card topCardButton
+        // Top card topCardButton
         if (!isDroppedDown) {
             topCardButton.updateCard(listPanel.listModel.elementAt(0));
         }
@@ -90,7 +90,7 @@ class ContainerPanel extends JPanel {
         topCardButton.setVisible(!isDroppedDown);
         minimizeList.setVisible(isDroppedDown);
 
-        //  list of cards
+        // List of cards (expanded view)
         listPanel.setVisible(isDroppedDown);
         listPanel.getParent().repaint();
 

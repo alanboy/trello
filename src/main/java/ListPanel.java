@@ -117,7 +117,7 @@ public class ListPanel extends JList<Card> {
         cardColors = new HashMap<String, Color> ();
         try{
             int i = 5;
-            while (i-- > 0) {
+            while (i-- > 0 && !queue.isEmpty()) {
                 CardComparable cc = queue.poll();
                 Color bgColor = null;
                 switch(i) {
@@ -340,7 +340,7 @@ public class ListPanel extends JList<Card> {
                     String response = JOptionPane.showInputDialog("Whats the new name?", selectedCard.getName());
 
                     try {
-                        TrelloClient.GetInstance().newCommentToCard(selectedCard.getId(), response);
+                        TrelloClient.GetInstance().renameCard(selectedCard.getId(), response);
                         TrelloClient.GetInstance().updateOnce();
                     } catch(Exception ex) {
                         log.error(ex);
@@ -445,7 +445,7 @@ public class ListPanel extends JList<Card> {
             buttonPopUp.add(addCommentMenu);
             buttonPopUp.add(archiveCardMenu);
             buttonPopUp.add(openBoardInBrowser);
-            //buttonPopUp.add(renameCardMenu);
+            buttonPopUp.add(renameCardMenu);
             buttonPopUp.add(copyToClipboardMenu);
             buttonPopUp.addSeparator();
             buttonPopUp.add(startTimerMenu);

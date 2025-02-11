@@ -1,4 +1,3 @@
-
 import com.google.gson.*;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -19,7 +18,6 @@ import org.trello4j.model.Action;
 import org.azd.workitemtracking.types.WorkItem;
 
 import org.apache.logging.log4j.*;
-
 
 public class TrelloClient extends SwingWorker<Integer, Integer> {
 
@@ -121,6 +119,8 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
 
             try {
                 UIServer.addList(listId, listOfCardsInList, listsInBoard);
+                
+
 
             } catch(Exception e) {
                 log.error("Unable to add list from client");
@@ -212,6 +212,15 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         }
 
         trello4jClient.closeCard(c.getId());
+    }
+
+    public void renameCard(String idCard, String name) {
+        if (!isInitialized) {
+           return;
+        }
+
+        log.info("Renaming card " + idCard + " to " + name);
+        trello4jClient.renameCard(idCard, name);
     }
 
     public void moveCardToTop(Card c) {
@@ -589,5 +598,24 @@ public class TrelloClient extends SwingWorker<Integer, Integer> {
         }
 
     }
-}
 
+    public List<Organization> getMyOrganizations() throws Exception {
+        if (!isInitialized) {
+            throw new Exception("Client has not been initialized.");
+        }
+
+        // Get unique organizations from boards
+        Map<String, Organization> organizations = new HashMap<>();
+        for (Board board : getMyBoards()) {
+            String orgId = board.getIdOrganization();
+            if (orgId != null && !organizations.containsKey(orgId)) {
+                Organization org = trello4jClient.getOrganization(orgId);
+                if (org != null) {
+                    organizations.put(orgId, org);
+                }
+            }
+        }
+        
+        return new ArrayList<>(organizations.values());
+    }
+}

@@ -12,7 +12,7 @@ mainClassName = "TrelloCmd"
 
 
 javafx {
-    version = '18'
+    version = '21'
     modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing', 'javafx.web' ]
 }
 
@@ -124,17 +124,33 @@ jar.doLast {
 //# Publishing
 //# ####################################################################
 task publish(type: Copy) {
-    from "build/libs/trello-" + version + ".jar"
-    rename { String fileName ->
-        fileName.replace(version, 'latest')
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    into 'dist'
+    
+    from("build/libs") {
+        include "trello-${version}.jar"
+        rename { String fileName ->
+            "trello-latest.jar"
+        }
     }
-    from "build/libs/latestversion.json"
-    into 'dist'
-    from "installer/trello-installer.msi"
-    into 'dist'
+    
+    from("build/libs") {
+        include "latestversion.json"
+    }
+
+    from("installer") {
+        include "trello-installer.msi"
+    }
+    
+    from("dist") {
+        include "trello-installer.msi"
+        include "trello-latest.jar"
+        include "latestversion.json"
+    }
 }
 
-//task publish.doFirst {
-//    delete fileTree(dir: 'dist\\')
-//}
+task cleanDist(type: Delete) {
+    delete 'dist'
+}
 
+publish.dependsOn cleanDist

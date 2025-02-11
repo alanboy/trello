@@ -1,4 +1,3 @@
-
 import java.awt.*;
 import java.awt.Desktop;
 import java.awt.Toolkit;
@@ -32,11 +31,12 @@ class CardButton extends JButton {
         log.info("Creating CardButton for card id = "+ card.getId() +"");
 
         this.setMargin(new Insets(0, 0, 0, 0));
-
         this.setContentAreaFilled(false);
         this.setFocusPainted(false);
         this.setToolTipText(card.getName() + "\n" + card.getDesc());
         this.setOpaque(true);
+        this.setVerticalAlignment(SwingConstants.CENTER);
+        this.setVerticalTextPosition(SwingConstants.CENTER);
 
         updateText();
 
@@ -105,7 +105,6 @@ class CardButton extends JButton {
         int hours = (int)(Math.floor(init / 3600) % 24);
         int minutes = (int)Math.floor((init / 60) % 60);
 
-        String description = "";
         if (title.length() > 40) {
             shortTitle = title.substring(0, 40);
         } else {
@@ -128,7 +127,10 @@ class CardButton extends JButton {
 
         String html = "";
         if (cardOpened) {
-            this.setPreferredSize(new Dimension(500, 50));
+            Dimension currentSize = this.getPreferredSize();
+            this.setPreferredSize(new Dimension(currentSize.width, 100));
+            this.setVerticalAlignment(SwingConstants.TOP);
+            this.setVerticalTextPosition(SwingConstants.TOP);
 
             html =  "<html><font color=\"" + titleColor + "\">" + trelloCard.getName() + "</font>"
                 +  " <font color=\"" + timeColor + "\">"
@@ -144,6 +146,8 @@ class CardButton extends JButton {
 
             html += "</html>";
         } else {
+            this.setVerticalAlignment(SwingConstants.CENTER);
+            this.setVerticalTextPosition(SwingConstants.CENTER);
 
             this.setPreferredSize(null);
 
@@ -159,4 +163,3 @@ class CardButton extends JButton {
         this.setText(html);
     }
 }
-

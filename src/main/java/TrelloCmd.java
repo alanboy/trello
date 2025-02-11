@@ -76,7 +76,7 @@ public class TrelloCmd {
         log.info ("\\-------------------------------------------------/");
         tClient = TrelloClient.GetInstance();
 
-        AzureDevOps azureDevOps = AzureDevOps.GetInstance();
+        //AzureDevOps azureDevOps = AzureDevOps.GetInstance();
         //try {
         //    log.info("****************************************");
         //    ArrayList<WorkItem> results = devops.GetTasksAndBugs();
@@ -156,11 +156,11 @@ public class TrelloCmd {
         }
 
         // Start UI
-        //javax.swing.SwingUtilities.invokeLater(new Runnable() {
-        //    public void run() {
-        //        UIServer.createAndShowGUI();
-        //    }
-        //});
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                UIServer.createAndShowGUI();
+            }
+        });
 
         log.info("Main thread ends");
     }
